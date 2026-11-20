@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="LifeLink.Api/LifeLink.Api.csproj" />
+  <Project Path="LifeLink.Application/LifeLink.Application.csproj" />
+  <Project Path="LifeLink.Domain/LifeLink.Domain.csproj" />
+  <Project Path="LifeLink.Infrastructure/LifeLink.Infrastructure.csproj" />
+  <Project Path="LifeLink.Tests/LifeLink.Tests.csproj" />
+</Solution>

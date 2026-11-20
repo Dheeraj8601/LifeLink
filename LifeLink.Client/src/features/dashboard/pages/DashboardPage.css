@@ -1,0 +1,171 @@
+/* Dashboard container */
+.dashboard-container {
+    min-height: 70vh;
+}
+
+/* Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.dashboard-welcome h1 {
+    font-size: 2.8rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-welcome p {
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+/* Availability control */
+.availability-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.availability-label {
+    color: #6c757d;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+/* Segmented switch container */
+.availability-switch {
+    display: flex;
+    align-items: center;
+    background: #eef1f4;
+    border: 1px solid #d9dee3;
+    border-radius: 50px;
+    padding: 5px;
+    min-width: 300px;
+}
+
+/* Individual option */
+.availability-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+
+    flex: 1;
+    padding: 0.7rem 1rem;
+
+    border: none;
+    border-radius: 50px;
+    background: transparent;
+
+    color: #6c757d;
+    font-size: 0.95rem;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+/* Active available state */
+.availability-option.active.available-option {
+    background: #e2f8e9;
+}
+
+/* Active state applied based on parent */
+.status-available .availability-option:first-child.active {
+    background: #e2f8e9;
+    color: #176b36;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Active unavailable state */
+.status-unavailable .availability-option:last-child.active {
+    background: #fde8e8;
+    color: #b4232f;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Status indicators */
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Green indicator */
+.available-indicator {
+    background: #16c637;
+    box-shadow: 0 0 8px rgba(22, 198, 55, 0.45);
+}
+
+/* Gray indicator */
+.unavailable-indicator {
+    background: #bfc3c8;
+}
+
+/* Active unavailable indicator */
+.status-unavailable
+.availability-option:last-child.active
+.unavailable-indicator {
+    background: #e91e35;
+    box-shadow: 0 0 8px rgba(233, 30, 53, 0.35);
+}
+
+/* Disabled while updating */
+.availability-option:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+/* Card spacing */
+.dashboard-cards {
+    margin-top: 0;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .dashboard-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .availability-control {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-welcome h1 {
+        font-size: 2rem;
+    }
+
+    .dashboard-welcome p {
+        font-size: 1rem;
+    }
+
+    .availability-control {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .availability-switch {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .availability-option {
+        padding: 0.65rem 0.7rem;
+        font-size: 0.85rem;
+    }
+}

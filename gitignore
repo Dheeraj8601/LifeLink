@@ -1,0 +1,90 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET
+bin/
+obj/
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+out/
+TestResults/
+coverage/
+*.trx
+*.nupkg
+*.snupkg
+
+# Local secrets/config
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+*.pfx
+*.pem
+*.key
+
+# React / Node
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# OS and logs
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.log
+*.tmp
+
+# Database files/backups
+*.mdf
+*.ldf
+*.bak
+*.sqlbak
+
+# Python, if used for tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+.vs/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# .NET
+bin/
+obj/
+
+# React / Node
+node_modules/
+dist/
+
+# Environment and secrets
+.env
+.env.*
+appsettings.Development.json
+
+# Logs
+*.log
