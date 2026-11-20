@@ -1,0 +1,129 @@
+/* Blood Request Page */
+.blood-request-page {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+}
+
+.blood-request-container {
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+.blood-request-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.blood-request-header {
+    padding: 1.5rem 1.75rem;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.blood-request-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 0.5rem;
+}
+
+.blood-request-subtitle {
+    color: #6c757d;
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.blood-request-body {
+    padding: 1.75rem;
+}
+
+.blood-request-section {
+    margin-bottom: 1.25rem;
+}
+
+.blood-request-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #343a40;
+    padding-bottom: 0.65rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #f1f1f1;
+}
+
+.blood-request-page .form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.blood-request-page .form-control,
+.blood-request-page .form-select {
+    border-radius: 7px;
+    min-height: 42px;
+    font-size: 0.95rem;
+    border-color: #dee2e6;
+}
+
+.blood-request-page .form-control:focus,
+.blood-request-page .form-select:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.12);
+}
+
+.blood-request-page textarea.form-control {
+    min-height: auto;
+}
+
+.blood-request-location-button {
+    border-color: #dc3545;
+    color: #dc3545;
+    border-radius: 7px;
+}
+
+.blood-request-location-button:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+.blood-request-submit-button {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #ffffff;
+    border-radius: 7px;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+}
+
+.blood-request-submit-button:hover {
+    background-color: #bb2d3b;
+    border-color: #bb2d3b;
+    color: #ffffff;
+}
+
+.blood-request-submit-button:disabled {
+    opacity: 0.7;
+}
+
+.blood-request-alert {
+    border-radius: 8px;
+}
+
+@media (max-width: 576px) {
+    .blood-request-page {
+        padding: 1rem 0;
+    }
+
+    .blood-request-header {
+        padding: 1.25rem;
+    }
+
+    .blood-request-body {
+        padding: 1.25rem;
+    }
+
+    .blood-request-title {
+        font-size: 1.4rem;
+    }
+}

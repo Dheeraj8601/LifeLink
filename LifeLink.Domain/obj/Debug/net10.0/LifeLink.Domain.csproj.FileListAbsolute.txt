@@ -10,3 +10,4 @@ E:\Projects\LifeLink\LifeLink.Domain\obj\Debug\net10.0\refint\LifeLink.Domain.dl
 E:\Projects\LifeLink\LifeLink.Domain\obj\Debug\net10.0\LifeLink.Domain.pdb
 E:\Projects\LifeLink\LifeLink.Domain\obj\Debug\net10.0\ref\LifeLink.Domain.dll
 E:\Projects\LifeLink\LifeLink.Domain\obj\Debug\net10.0\LifeLink.422C2282.Up2Date
+E:\Projects\LifeLink\LifeLink.Domain\obj\Debug\net10.0\LifeLink.Domain.sourcelink.json

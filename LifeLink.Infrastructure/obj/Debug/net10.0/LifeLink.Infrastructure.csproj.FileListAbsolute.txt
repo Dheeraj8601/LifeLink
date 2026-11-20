@@ -18,3 +18,4 @@ E:\Projects\LifeLink\LifeLink.Infrastructure\obj\Debug\net10.0\refint\LifeLink.I
 E:\Projects\LifeLink\LifeLink.Infrastructure\obj\Debug\net10.0\LifeLink.Infrastructure.pdb
 E:\Projects\LifeLink\LifeLink.Infrastructure\obj\Debug\net10.0\LifeLink.Infrastructure.genruntimeconfig.cache
 E:\Projects\LifeLink\LifeLink.Infrastructure\obj\Debug\net10.0\ref\LifeLink.Infrastructure.dll
+E:\Projects\LifeLink\LifeLink.Infrastructure\obj\Debug\net10.0\LifeLink.Infrastructure.sourcelink.json

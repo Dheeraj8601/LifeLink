@@ -19,7 +19,15 @@ const authService = {
   register: async (donorData) => {
     const response = await apiClient.post('/donors', donorData)
     return response.data
-},
+  },
+
+  registerRequester: async (requesterData) => {
+    const response = await apiClient.post(
+      '/Auth/register/requester',
+      requesterData
+    )
+    return response.data
+  },
 }
 
 export default authService

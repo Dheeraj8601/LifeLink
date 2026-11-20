@@ -3,44 +3,20 @@
   "WorkspaceRootPath": "E:\\Projects\\LifeLink\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{8D2E5767-8F8B-C754-BEBA-A7B711858B67}|LifeLink.Api\\LifeLink.Api.csproj|e:\\projects\\lifelink\\lifelink.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{8D2E5767-8F8B-C754-BEBA-A7B711858B67}|LifeLink.Api\\LifeLink.Api.csproj|solutionrelative:lifelink.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8D2E5767-8F8B-C754-BEBA-A7B711858B67}|LifeLink.Api\\LifeLink.Api.csproj|e:\\projects\\lifelink\\lifelink.api\\controllers\\donorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8D2E5767-8F8B-C754-BEBA-A7B711858B67}|LifeLink.Api\\LifeLink.Api.csproj|solutionrelative:lifelink.api\\controllers\\donorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8D2E5767-8F8B-C754-BEBA-A7B711858B67}|LifeLink.Api\\LifeLink.Api.csproj|e:\\projects\\lifelink\\lifelink.api\\dtos\\donors\\updatedonoravailabilityrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8D2E5767-8F8B-C754-BEBA-A7B711858B67}|LifeLink.Api\\LifeLink.Api.csproj|solutionrelative:lifelink.api\\dtos\\donors\\updatedonoravailabilityrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|e:\\projects\\lifelink\\lifelink.application\\services\\donorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|solutionrelative:lifelink.application\\services\\donorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{242E2605-D83B-2193-A321-37BCF915F433}|LifeLink.Infrastructure\\LifeLink.Infrastructure.csproj|e:\\projects\\lifelink\\lifelink.infrastructure\\repositories\\donorrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{242E2605-D83B-2193-A321-37BCF915F433}|LifeLink.Infrastructure\\LifeLink.Infrastructure.csproj|solutionrelative:lifelink.infrastructure\\repositories\\donorrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|e:\\projects\\lifelink\\lifelink.application\\interfaces\\repositories\\idonorrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|solutionrelative:lifelink.application\\interfaces\\repositories\\idonorrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|e:\\projects\\lifelink\\lifelink.application\\interfaces\\services\\idonorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|solutionrelative:lifelink.application\\interfaces\\services\\idonorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8D2E5767-8F8B-C754-BEBA-A7B711858B67}|LifeLink.Api\\LifeLink.Api.csproj|e:\\projects\\lifelink\\lifelink.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D2E5767-8F8B-C754-BEBA-A7B711858B67}|LifeLink.Api\\LifeLink.Api.csproj|solutionrelative:lifelink.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8D2E5767-8F8B-C754-BEBA-A7B711858B67}|LifeLink.Api\\LifeLink.Api.csproj|e:\\projects\\lifelink\\lifelink.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8D2E5767-8F8B-C754-BEBA-A7B711858B67}|LifeLink.Api\\LifeLink.Api.csproj|solutionrelative:lifelink.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|e:\\projects\\lifelink\\lifelink.application\\dtos\\cities\\cityresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|solutionrelative:lifelink.application\\dtos\\cities\\cityresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|e:\\projects\\lifelink\\lifelink.application\\services\\requesterservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|solutionrelative:lifelink.application\\services\\requesterservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|e:\\projects\\lifelink\\lifelink.application\\services\\cityservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|solutionrelative:lifelink.application\\services\\cityservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|e:\\projects\\lifelink\\lifelink.application\\interfaces\\services\\irequesterservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A939CF8B-A7AB-D75D-2B2C-80DCE66945AC}|LifeLink.Application\\LifeLink.Application.csproj|solutionrelative:lifelink.application\\interfaces\\services\\irequesterservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -55,136 +31,54 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Api\\appsettings.json",
-              "RelativeDocumentMoniker": "LifeLink.Api\\appsettings.json",
-              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Api\\appsettings.json",
-              "RelativeToolTip": "LifeLink.Api\\appsettings.json",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAkwBIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-11-20T11:34:08.227Z",
-              "EditorCaption": "",
-              "OwnerCaption": "%2"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "DonorService.cs",
-              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Application\\Services\\DonorService.cs",
-              "RelativeDocumentMoniker": "LifeLink.Application\\Services\\DonorService.cs",
-              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Application\\Services\\DonorService.cs",
-              "RelativeToolTip": "LifeLink.Application\\Services\\DonorService.cs",
-              "ViewState": "AgIAAMkAAAAAAAAAAAAAwNcAAAAIAAAAAAAAAA==",
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Api\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "LifeLink.Api\\Controllers\\AuthController.cs",
+              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Api\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "LifeLink.Api\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAHUAAAAAAAAAAAAuwKwAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-20T10:38:18.977Z",
-              "EditorCaption": "",
-              "OwnerCaption": "%2"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "IDonorRepository.cs",
-              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Application\\Interfaces\\Repositories\\IDonorRepository.cs",
-              "RelativeDocumentMoniker": "LifeLink.Application\\Interfaces\\Repositories\\IDonorRepository.cs",
-              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Application\\Interfaces\\Repositories\\IDonorRepository.cs",
-              "RelativeToolTip": "LifeLink.Application\\Interfaces\\Repositories\\IDonorRepository.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAmwDUAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-20T10:51:07.182Z",
-              "EditorCaption": "",
-              "OwnerCaption": "%2"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "IDonorService.cs",
-              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Application\\Interfaces\\Services\\IDonorService.cs",
-              "RelativeDocumentMoniker": "LifeLink.Application\\Interfaces\\Services\\IDonorService.cs",
-              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Application\\Interfaces\\Services\\IDonorService.cs",
-              "RelativeToolTip": "LifeLink.Application\\Interfaces\\Services\\IDonorService.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAmwB8AAAAnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-20T10:49:55.887Z",
-              "EditorCaption": "",
-              "OwnerCaption": "%2"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "DonorRepository.cs",
-              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Infrastructure\\Repositories\\DonorRepository.cs",
-              "RelativeDocumentMoniker": "LifeLink.Infrastructure\\Repositories\\DonorRepository.cs",
-              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Infrastructure\\Repositories\\DonorRepository.cs",
-              "RelativeToolTip": "LifeLink.Infrastructure\\Repositories\\DonorRepository.cs",
-              "ViewState": "AgIAAA4BAAAAAAAAAAAuwDkBAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-20T10:35:29.167Z",
-              "EditorCaption": "",
-              "OwnerCaption": "%2"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "DonorController.cs",
-              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Api\\Controllers\\DonorController.cs",
-              "RelativeDocumentMoniker": "LifeLink.Api\\Controllers\\DonorController.cs",
-              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Api\\Controllers\\DonorController.cs",
-              "RelativeToolTip": "LifeLink.Api\\Controllers\\DonorController.cs",
-              "ViewState": "AgIAACwAAAAAAAAAAAAAAIYAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-20T09:58:50.668Z",
+              "WhenOpened": "2026-11-20T16:36:08.64Z",
               "EditorCaption": "",
               "OwnerCaption": "%2"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "UpdateDonorAvailabilityRequest.cs",
-              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Api\\DTOs\\Donors\\UpdateDonorAvailabilityRequest.cs",
-              "RelativeDocumentMoniker": "LifeLink.Api\\DTOs\\Donors\\UpdateDonorAvailabilityRequest.cs",
-              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Api\\DTOs\\Donors\\UpdateDonorAvailabilityRequest.cs",
-              "RelativeToolTip": "LifeLink.Api\\DTOs\\Donors\\UpdateDonorAvailabilityRequest.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAABAAAAAAAAAA==",
+              "Title": "RequesterService.cs",
+              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Application\\Services\\RequesterService.cs",
+              "RelativeDocumentMoniker": "LifeLink.Application\\Services\\RequesterService.cs",
+              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Application\\Services\\RequesterService.cs",
+              "RelativeToolTip": "LifeLink.Application\\Services\\RequesterService.cs",
+              "ViewState": "AgIAADQAAAAAAAAAAAAkwA8AAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-20T10:56:26.934Z",
+              "WhenOpened": "2026-11-20T16:31:35.919Z",
               "EditorCaption": "",
               "OwnerCaption": "%2"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "CityResponse.cs",
-              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Application\\DTOs\\Cities\\CityResponse.cs",
-              "RelativeDocumentMoniker": "LifeLink.Application\\DTOs\\Cities\\CityResponse.cs",
-              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Application\\DTOs\\Cities\\CityResponse.cs",
-              "RelativeToolTip": "LifeLink.Application\\DTOs\\Cities\\CityResponse.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAA1wAkAAAABAAAAAAAAAA==",
+              "DocumentIndex": 3,
+              "Title": "IRequesterService.cs",
+              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Application\\Interfaces\\Services\\IRequesterService.cs",
+              "RelativeDocumentMoniker": "LifeLink.Application\\Interfaces\\Services\\IRequesterService.cs",
+              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Application\\Interfaces\\Services\\IRequesterService.cs",
+              "RelativeToolTip": "LifeLink.Application\\Interfaces\\Services\\IRequesterService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-19T18:26:49.564Z",
+              "WhenOpened": "2026-11-20T16:23:47.644Z",
+              "EditorCaption": "",
               "OwnerCaption": "%2"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "CityService.cs",
-              "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Application\\Services\\CityService.cs",
-              "RelativeDocumentMoniker": "LifeLink.Application\\Services\\CityService.cs",
-              "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Application\\Services\\CityService.cs",
-              "RelativeToolTip": "LifeLink.Application\\Services\\CityService.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAwwBQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-19T18:25:38.944Z",
-              "OwnerCaption": "%2"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "E:\\Projects\\LifeLink\\LifeLink.Api\\Program.cs",
               "RelativeDocumentMoniker": "LifeLink.Api\\Program.cs",
               "ToolTip": "E:\\Projects\\LifeLink\\LifeLink.Api\\Program.cs",
               "RelativeToolTip": "LifeLink.Api\\Program.cs",
-              "ViewState": "AgIAAJYAAAAAAAAAAAAowJEAAAA4AAAAAAAAAA==",
+              "ViewState": "AgIAAIEAAAAAAAAAAAAowJcAAABCAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-11-14T06:43:28.374Z",
               "EditorCaption": "",

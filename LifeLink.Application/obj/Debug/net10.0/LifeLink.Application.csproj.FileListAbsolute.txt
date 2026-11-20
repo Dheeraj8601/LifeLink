@@ -13,3 +13,4 @@ E:\Projects\LifeLink\LifeLink.Application\obj\Debug\net10.0\LifeLink.Application
 E:\Projects\LifeLink\LifeLink.Application\obj\Debug\net10.0\refint\LifeLink.Application.dll
 E:\Projects\LifeLink\LifeLink.Application\obj\Debug\net10.0\LifeLink.Application.pdb
 E:\Projects\LifeLink\LifeLink.Application\obj\Debug\net10.0\ref\LifeLink.Application.dll
+E:\Projects\LifeLink\LifeLink.Application\obj\Debug\net10.0\LifeLink.Application.sourcelink.json

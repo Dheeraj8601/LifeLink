@@ -1,16 +1,13 @@
 .lifelink-app {
-  min-height: 100vh;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .navbar-brand {
-  font-size: 1.5rem;
+    font-size: 1.5rem;
 }
 
-.card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+.lifelink-app main {
+    flex: 1;
 }

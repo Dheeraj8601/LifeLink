@@ -170,3 +170,4 @@ E:\Projects\LifeLink\LifeLink.Api\obj\Debug\net10.0\refint\LifeLink.Api.dll
 E:\Projects\LifeLink\LifeLink.Api\obj\Debug\net10.0\LifeLink.Api.pdb
 E:\Projects\LifeLink\LifeLink.Api\obj\Debug\net10.0\LifeLink.Api.genruntimeconfig.cache
 E:\Projects\LifeLink\LifeLink.Api\obj\Debug\net10.0\ref\LifeLink.Api.dll
+E:\Projects\LifeLink\LifeLink.Api\obj\Debug\net10.0\LifeLink.Api.sourcelink.json

@@ -46,6 +46,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "LifeLink.Api.Controllers.AuthController",
+    "Method": "RegisterRequester",
+    "RelativePath": "api/Auth/register/requester",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "LifeLink.Api.DTOs.Requesters.RegisterRequesterRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "LifeLink.Api.Controllers.BloodRequestsController",
     "Method": "CreateBloodRequest",
     "RelativePath": "api/blood-requests",

@@ -137,6 +137,8 @@ builder.Services.AddScoped<IBloodRequestRepository, BloodRequestRepository>();
 builder.Services.AddScoped<IRequestResponseRepository,RequestResponseRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
+builder.Services.AddScoped<IRequesterRepository, RequesterRepository>();
+
 
 // --------------------------------------------------
 // 6. Register Application Services
@@ -147,6 +149,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
 builder.Services.AddScoped<IRequestResponseService,RequestResponseService>();
 builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<IRequesterService, RequesterService>();
 
 // --------------------------------------------------
 // 7. Register Security Services

@@ -170,3 +170,4 @@ E:\Projects\LifeLink\LifeLink.Tests\obj\Debug\net10.0\refint\LifeLink.Tests.dll
 E:\Projects\LifeLink\LifeLink.Tests\obj\Debug\net10.0\LifeLink.Tests.pdb
 E:\Projects\LifeLink\LifeLink.Tests\obj\Debug\net10.0\LifeLink.Tests.genruntimeconfig.cache
 E:\Projects\LifeLink\LifeLink.Tests\obj\Debug\net10.0\ref\LifeLink.Tests.dll
+E:\Projects\LifeLink\LifeLink.Tests\obj\Debug\net10.0\LifeLink.Tests.sourcelink.json
