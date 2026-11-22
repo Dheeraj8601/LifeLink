@@ -1,6 +1,8 @@
 ﻿
+using LifeLink.Application.DTOs.RequestResponses;
 using LifeLink.Application.Interfaces.Repositories;
 using LifeLink.Domain.Entities;
+using LifeLink.Domain.Enums;
 using LifeLink.Infrastructure.Data;
 using LifeLink.Infrastructure.Mapping;
 using Microsoft.EntityFrameworkCore;
@@ -117,5 +119,47 @@ public class RequestResponseRepository : IRequestResponseRepository
                     response.BloodRequestId == bloodRequestId &&
                     response.Status == "Accepted",
                 cancellationToken);
+    }
+
+    public async Task<List<DonorResponseResult>> GetResponsesByDonorIdAsync(
+    int userId,
+    CancellationToken cancellationToken = default)
+    {
+        var results = await (
+            from response in _context.RequestResponses
+            join donor in _context.DonorProfiles
+                on response.DonorId equals donor.Id
+            join request in _context.BloodRequests
+                on response.BloodRequestId equals request.Id
+            where donor.UserId == userId
+            orderby response.RespondedAt descending
+            select new
+            {
+                ResponseId = response.Id,
+                BloodRequestId = request.Id,
+                BloodGroup = request.BloodGroup,
+                HospitalName = request.HospitalName,
+                HospitalAddress = request.HospitalAddress,
+                UnitsRequired = request.UnitsRequired,
+                Urgency = request.Urgency,
+                RequestStatus = request.Status,
+                ResponseStatus = response.Status,
+                RespondedAt = response.RespondedAt
+            })
+            .ToListAsync(cancellationToken);
+
+        return results.Select(item => new DonorResponseResult
+        {
+            ResponseId = item.ResponseId,
+            BloodRequestId = item.BloodRequestId,
+            BloodGroup = item.BloodGroup,
+            HospitalName = item.HospitalName,
+            HospitalAddress = item.HospitalAddress,
+            UnitsRequired = item.UnitsRequired,
+            Urgency = Enum.Parse<RequestUrgency>(item.Urgency),
+            RequestStatus = Enum.Parse<BloodRequestStatus>(item.RequestStatus),
+            ResponseStatus = Enum.Parse<RequestResponseStatus>(item.ResponseStatus),
+            RespondedAt = item.RespondedAt
+        }).ToList();
     }
 }

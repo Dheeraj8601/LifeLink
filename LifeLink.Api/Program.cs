@@ -1,19 +1,17 @@
-
-using System.Security.Claims;
-using System.Text;
-
+using LifeLink.Api.Hubs;
 using LifeLink.Application.Interfaces.Repositories;
 using LifeLink.Application.Interfaces.Security;
 using LifeLink.Application.Interfaces.Services;
 using LifeLink.Application.Services;
-
 using LifeLink.Infrastructure.Data;
 using LifeLink.Infrastructure.Repositories;
 using LifeLink.Infrastructure.Security;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
+using LifeLink.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +22,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+
+// Register SignalR
+builder.Services.AddSignalR();
 
 // Configure CORS for React frontend
 builder.Services.AddCors(options =>
@@ -134,11 +135,10 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IDonorRepository, DonorRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IBloodRequestRepository, BloodRequestRepository>();
-builder.Services.AddScoped<IRequestResponseRepository,RequestResponseRepository>();
+builder.Services.AddScoped<IRequestResponseRepository, RequestResponseRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<IRequesterRepository, RequesterRepository>();
-
 
 // --------------------------------------------------
 // 6. Register Application Services
@@ -147,9 +147,10 @@ builder.Services.AddScoped<IRequesterRepository, RequesterRepository>();
 builder.Services.AddScoped<IDonorService, DonorService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
-builder.Services.AddScoped<IRequestResponseService,RequestResponseService>();
+builder.Services.AddScoped<IRequestResponseService, RequestResponseService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IRequesterService, RequesterService>();
+builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
 
 // --------------------------------------------------
 // 7. Register Security Services
@@ -182,9 +183,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // --------------------------------------------------
-// 10. Map Controllers
+// 10. Map Endpoints
 // --------------------------------------------------
 
 app.MapControllers();
+
+// Map SignalR Hub
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

@@ -1,4 +1,5 @@
-﻿using LifeLink.Domain.Entities;
+﻿using LifeLink.Application.DTOs.RequestResponses;
+using LifeLink.Domain.Entities;
 using LifeLink.Domain.Enums;
 
 namespace LifeLink.Application.Interfaces.Services;
@@ -19,5 +20,9 @@ public interface IRequestResponseService
         int responseId,
         int requesterId,
         RequestResponseStatus newStatus,
+        CancellationToken cancellationToken = default);
+
+    Task<List<DonorResponseResult>> GetResponsesForDonorAsync(
+        int donorId,
         CancellationToken cancellationToken = default);
 }

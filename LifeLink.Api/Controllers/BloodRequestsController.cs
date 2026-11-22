@@ -381,4 +381,26 @@ public class BloodRequestsController : ControllerBase
         }
     }
 
+
+    [HttpGet("my-responses")]
+    [Authorize(Policy = "DonorOnly")]
+    public async Task<IActionResult> GetMyResponses(
+    CancellationToken cancellationToken)
+    {
+        var userIdValue = User.FindFirstValue("sub")
+                          ?? User.FindFirstValue(
+                              ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(userIdValue, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var responses = await _requestResponseService
+            .GetResponsesForDonorAsync(
+                userId,
+                cancellationToken);
+
+        return Ok(responses);
+    }
 }

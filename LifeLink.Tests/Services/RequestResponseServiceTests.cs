@@ -1,5 +1,6 @@
 ﻿
 using LifeLink.Application.Interfaces.Repositories;
+using LifeLink.Application.Interfaces.Services;
 using LifeLink.Application.Services;
 using LifeLink.Domain.Entities;
 using LifeLink.Domain.Enums;
@@ -12,6 +13,7 @@ public class RequestResponseServiceTests
     private readonly Mock<IRequestResponseRepository> _responseRepositoryMock;
     private readonly Mock<IBloodRequestRepository> _bloodRequestRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<INotificationService> _notification;
     private readonly RequestResponseService _service;
 
     public RequestResponseServiceTests()
@@ -19,6 +21,7 @@ public class RequestResponseServiceTests
         _responseRepositoryMock = new Mock<IRequestResponseRepository>();
         _bloodRequestRepositoryMock = new Mock<IBloodRequestRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _notification = new Mock<INotificationService>();
 
         // Execute the supplied operation directly in unit tests.
         _unitOfWorkMock
@@ -32,7 +35,8 @@ public class RequestResponseServiceTests
         _service = new RequestResponseService(
             _responseRepositoryMock.Object,
             _bloodRequestRepositoryMock.Object,
-            _unitOfWorkMock.Object);
+            _unitOfWorkMock.Object,
+            _notification.Object);
     }
 
     private static BloodRequest CreateOpenRequest()
