@@ -1,0 +1,31 @@
+
+.request-card-highlight {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.25) !important;
+    animation: request-highlight-pulse 2s ease-in-out 3;
+}
+
+.request-highlight-message {
+    background-color: #fff3f3;
+    color: #dc3545;
+    border: 1px solid #f5c2c7;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+@keyframes request-highlight-pulse {
+    0% {
+        box-shadow: 0 0 0 rgba(220, 53, 69, 0.1);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(220, 53, 69, 0.4);
+    }
+
+    100% {
+        box-shadow: 0 0 0 rgba(220, 53, 69, 0.1);
+    }
+}

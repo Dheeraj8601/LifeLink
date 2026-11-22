@@ -1,6 +1,6 @@
-
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../features/authentication/context/AuthContext'
+import NotificationBell from '../../features/notifications/components/NotificationBell'
 
 function Navbar() {
     const { user, isAuthenticated, isLoading, logout } = useAuth()
@@ -40,8 +40,14 @@ function Navbar() {
                     {!isLoading && isAuthenticated && (
                         <>
                             <span className="text-white">
-                                Welcome, {user?.fullName || user?.FullName || user?.email || user?.Email}
+                                Welcome,{' '}
+                                {user?.fullName ||
+                                    user?.FullName ||
+                                    user?.email ||
+                                    user?.Email}
                             </span>
+
+                            <NotificationBell />
 
                             <button
                                 className="btn btn-light text-danger fw-semibold"

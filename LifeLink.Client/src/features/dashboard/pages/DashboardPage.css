@@ -169,3 +169,186 @@
         font-size: 0.85rem;
     }
 }
+
+/* ============================= */
+/* Requester Dashboard          */
+/* ============================= */
+
+.requester-dashboard {
+    min-height: 70vh;
+}
+
+.requester-dashboard-header {
+    margin-bottom: 2.5rem;
+}
+
+.requester-dashboard-header h1 {
+    font-size: 2.8rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.5rem;
+}
+
+.requester-dashboard-header p {
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+/* Request summary cards */
+
+.requester-summary {
+    margin-bottom: 2.5rem;
+}
+
+.requester-summary-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    height: 100%;
+    transition: transform 0.2s ease;
+}
+
+.requester-summary-card:hover {
+    transform: translateY(-3px);
+}
+
+.requester-summary-card .card-body {
+    padding: 1.5rem;
+}
+
+.requester-summary-label {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.requester-summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 0;
+}
+
+/* Blood request cards */
+
+.requester-request-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    height: 100%;
+    transition: transform 0.2s ease;
+}
+
+.requester-request-card:hover {
+    transform: translateY(-3px);
+}
+
+.requester-request-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Responsive */
+
+@media (max-width: 576px) {
+    .requester-dashboard-header h1 {
+        font-size: 2rem;
+    }
+
+    .requester-dashboard-header p {
+        font-size: 1rem;
+    }
+}
+
+/* ============================= */
+/* Request Status Badges         */
+/* ============================= */
+
+.request-status-badge {
+    display: inline-block;
+    padding: 0.4rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.request-status-open {
+    background: #e8f3ff;
+    color: #0d6efd;
+}
+
+.request-status-fulfilled {
+    background: #e2f8e9;
+    color: #176b36;
+}
+
+.request-status-cancelled {
+    background: #fde8e8;
+    color: #b4232f;
+}
+
+.request-status-default {
+    background: #f1f3f5;
+    color: #495057;
+}
+
+/* ============================= */
+/* Urgency Badges                */
+/* ============================= */
+
+.request-urgency-badge {
+    display: inline-block;
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.request-urgency-critical {
+    background: #fde8e8;
+    color: #b4232f;
+}
+
+.request-urgency-urgent {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.request-urgency-normal {
+    background: #e2f8e9;
+    color: #176b36;
+}
+
+/* Notification highlighted request */
+
+.request-card-highlight {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.25) !important;
+    animation: request-highlight-pulse 2s ease-in-out 3;
+}
+
+.request-highlight-message {
+    background-color: #fff3f3;
+    color: #dc3545;
+    border: 1px solid #f5c2c7;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+@keyframes request-highlight-pulse {
+    0% {
+        box-shadow: 0 0 0 rgba(220, 53, 69, 0.1);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(220, 53, 69, 0.4);
+    }
+
+    100% {
+        box-shadow: 0 0 0 rgba(220, 53, 69, 0.1);
+    }
+}

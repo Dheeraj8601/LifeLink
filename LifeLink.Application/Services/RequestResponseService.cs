@@ -1,4 +1,5 @@
 ﻿
+using LifeLink.Application.DTOs.RequestResponses;
 using LifeLink.Application.Interfaces.Repositories;
 using LifeLink.Application.Interfaces.Services;
 using LifeLink.Domain.Entities;
@@ -11,23 +12,26 @@ public class RequestResponseService : IRequestResponseService
     private readonly IRequestResponseRepository _responseRepository;
     private readonly IBloodRequestRepository _bloodRequestRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationService _notificationService;
 
     public RequestResponseService(
         IRequestResponseRepository responseRepository,
         IBloodRequestRepository bloodRequestRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        INotificationService notificationService)
     {
         _responseRepository = responseRepository;
         _bloodRequestRepository = bloodRequestRepository;
         _unitOfWork = unitOfWork;
+        _notificationService = notificationService;
     }
 
 
 
     public async Task<int> SubmitResponseAsync(
-        int bloodRequestId,
-        int userId,
-        CancellationToken cancellationToken = default)
+    int bloodRequestId,
+    int userId,
+    CancellationToken cancellationToken = default)
     {
         if (bloodRequestId <= 0)
             throw new ArgumentException("Invalid blood request ID.");
@@ -36,6 +40,7 @@ public class RequestResponseService : IRequestResponseService
             throw new ArgumentException("Invalid user ID.");
 
         int responseId = 0;
+        int requesterId = 0;
 
         await _unitOfWork.ExecuteInTransactionAsync(async transactionToken =>
         {
@@ -47,6 +52,9 @@ public class RequestResponseService : IRequestResponseService
 
             if (bloodRequest is null)
                 throw new KeyNotFoundException("Blood request not found.");
+
+            // Capture the requester ID for notification after transaction.
+            requesterId = bloodRequest.RequesterId;
 
             // 2. Allow responses only for Open or PartiallyFulfilled requests.
             if (bloodRequest.Status != BloodRequestStatus.Open &&
@@ -91,10 +99,21 @@ public class RequestResponseService : IRequestResponseService
 
         }, cancellationToken);
 
+        await _notificationService.NotifyUserAsync(
+            requesterId,
+            "NewBloodRequestResponse",
+            new
+            {
+                BloodRequestId = bloodRequestId,
+                ResponseId = responseId,
+                DonorUserId = userId,
+                Message = "A donor has responded to your blood request.",
+                CreatedAt = DateTime.UtcNow
+            },
+            cancellationToken);
+
         return responseId;
     }
-
-
 
     public async Task<List<RequestResponse>> GetResponsesForRequesterAsync(
         int bloodRequestId,
@@ -222,5 +241,16 @@ public class RequestResponseService : IRequestResponseService
         }, cancellationToken);
     }
 
+    public async Task<List<DonorResponseResult>> GetResponsesForDonorAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        if (userId <= 0)
+            throw new ArgumentException("Invalid user ID.");
+
+        return await _responseRepository.GetResponsesByDonorIdAsync(
+            userId,
+            cancellationToken);
+    }
 
 }

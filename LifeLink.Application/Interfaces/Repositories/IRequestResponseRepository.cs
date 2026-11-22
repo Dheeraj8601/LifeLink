@@ -1,4 +1,4 @@
-﻿
+﻿using LifeLink.Application.DTOs.RequestResponses;
 using LifeLink.Domain.Entities;
 
 namespace LifeLink.Application.Interfaces.Repositories;
@@ -32,5 +32,9 @@ public interface IRequestResponseRepository
 
     Task<int> GetAcceptedResponseCountAsync(
         int bloodRequestId,
+        CancellationToken cancellationToken = default);
+
+    Task<List<DonorResponseResult>> GetResponsesByDonorIdAsync(
+        int donorId,
         CancellationToken cancellationToken = default);
 }

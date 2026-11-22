@@ -1,4 +1,3 @@
-
 import {
     createContext,
     useContext,
@@ -7,6 +6,7 @@ import {
 } from 'react'
 
 import authService from '../services/authService'
+import notificationService from '../../../core/signalr/notificationService'
 
 const AuthContext = createContext(null)
 
@@ -53,6 +53,31 @@ export function AuthProvider({ children }) {
 
         checkAuthentication()
     }, [])
+
+    // Manage SignalR connection based on authentication
+    useEffect(() => {
+        if (!isAuthenticated) {
+            notificationService.disconnect()
+            return
+        }
+
+        const connectSignalR = async () => {
+            try {
+                await notificationService.connect()
+            } catch (error) {
+                console.error(
+                    'Failed to establish notification connection:',
+                    error
+                )
+            }
+        }
+
+        connectSignalR()
+
+        return () => {
+            notificationService.disconnect()
+        }
+    }, [isAuthenticated])
 
     // Login
     const login = async (credentials) => {
