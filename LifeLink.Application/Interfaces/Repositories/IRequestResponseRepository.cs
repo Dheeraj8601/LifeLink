@@ -1,4 +1,5 @@
-﻿using LifeLink.Application.DTOs.RequestResponses;
+﻿
+using LifeLink.Application.DTOs.RequestResponses;
 using LifeLink.Domain.Entities;
 
 namespace LifeLink.Application.Interfaces.Repositories;
@@ -36,5 +37,16 @@ public interface IRequestResponseRepository
 
     Task<List<DonorResponseResult>> GetResponsesByDonorIdAsync(
         int donorId,
+        CancellationToken cancellationToken = default);
+
+    // Locks the donor row for the current transaction.
+    Task LockDonorForCommitmentAsync(
+        int donorId,
+        CancellationToken cancellationToken = default);
+
+    // Checks whether the donor has another accepted commitment.
+    Task<bool> HasOtherActiveCommitmentAsync(
+        int donorId,
+        int excludedResponseId,
         CancellationToken cancellationToken = default);
 }

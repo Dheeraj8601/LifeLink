@@ -79,7 +79,8 @@ public class RequestResponseRepository : IRequestResponseRepository
     {
         var entities = await _context.RequestResponses
             .AsNoTracking()
-            .Where(response => response.BloodRequestId == bloodRequestId)
+            .Where(response =>
+                response.BloodRequestId == bloodRequestId)
             .OrderByDescending(response => response.RespondedAt)
             .ToListAsync(cancellationToken);
 
@@ -122,8 +123,8 @@ public class RequestResponseRepository : IRequestResponseRepository
     }
 
     public async Task<List<DonorResponseResult>> GetResponsesByDonorIdAsync(
-    int userId,
-    CancellationToken cancellationToken = default)
+        int userId,
+        CancellationToken cancellationToken = default)
     {
         var results = await (
             from response in _context.RequestResponses
@@ -157,9 +158,41 @@ public class RequestResponseRepository : IRequestResponseRepository
             HospitalAddress = item.HospitalAddress,
             UnitsRequired = item.UnitsRequired,
             Urgency = Enum.Parse<RequestUrgency>(item.Urgency),
-            RequestStatus = Enum.Parse<BloodRequestStatus>(item.RequestStatus),
-            ResponseStatus = Enum.Parse<RequestResponseStatus>(item.ResponseStatus),
+            RequestStatus = Enum.Parse<BloodRequestStatus>(
+                item.RequestStatus),
+            ResponseStatus = Enum.Parse<RequestResponseStatus>(
+                item.ResponseStatus),
             RespondedAt = item.RespondedAt
         }).ToList();
+    }
+
+    public async Task LockDonorForCommitmentAsync(
+        int donorId,
+        CancellationToken cancellationToken = default)
+    {
+        // UPDLOCK + HOLDLOCK keeps the donor row locked until
+        // the current transaction completes.
+        await _context.Database.SqlQueryRaw<int>(
+                """
+                SELECT Id AS Value
+                FROM dbo.DonorProfiles WITH (UPDLOCK, HOLDLOCK)
+                WHERE Id = {0}
+                """,
+                donorId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<bool> HasOtherActiveCommitmentAsync(
+        int donorId,
+        int excludedResponseId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.RequestResponses
+            .AnyAsync(
+                response =>
+                    response.DonorId == donorId &&
+                    response.Id != excludedResponseId &&
+                    response.Status == "Accepted",
+                cancellationToken);
     }
 }

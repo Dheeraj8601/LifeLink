@@ -31,7 +31,7 @@ function LoginForm() {
 
             console.log('Login successful:', result.user)
 
-            navigate('/')
+            navigate('/dashboard')
         } catch (error) {
             setError(error.message || 'Login failed. Please try again.')
         } finally {

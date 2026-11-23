@@ -26,6 +26,10 @@ function MyResponses() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const hasActiveCommitment = responses.some(
+    response => response.responseStatus === 2
+  )
+
   useEffect(() => {
     loadResponses()
   }, [])
@@ -87,6 +91,7 @@ function MyResponses() {
 
   return (
     <div>
+      {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4>My Responses</h4>
         <span className="badge bg-primary">
@@ -94,6 +99,18 @@ function MyResponses() {
         </span>
       </div>
 
+      {/* Active Commitment Alert */}
+      {hasActiveCommitment && (
+        <div className="alert alert-success mb-3">
+          <strong>Active Donation Commitment</strong>
+          <p className="mb-0">
+            You have an accepted blood donation commitment.
+            Please complete this donation before accepting another request.
+          </p>
+        </div>
+      )}
+
+      {/* Responses */}
       <div className="row g-3">
         {responses.map((response) => {
           const responseStatus =

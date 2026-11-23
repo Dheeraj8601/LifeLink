@@ -26,12 +26,10 @@ public class RequestResponseService : IRequestResponseService
         _notificationService = notificationService;
     }
 
-
-
     public async Task<int> SubmitResponseAsync(
-    int bloodRequestId,
-    int userId,
-    CancellationToken cancellationToken = default)
+        int bloodRequestId,
+        int userId,
+        CancellationToken cancellationToken = default)
     {
         if (bloodRequestId <= 0)
             throw new ArgumentException("Invalid blood request ID.");
@@ -53,7 +51,6 @@ public class RequestResponseService : IRequestResponseService
             if (bloodRequest is null)
                 throw new KeyNotFoundException("Blood request not found.");
 
-            // Capture the requester ID for notification after transaction.
             requesterId = bloodRequest.RequesterId;
 
             // 2. Allow responses only for Open or PartiallyFulfilled requests.
@@ -71,18 +68,23 @@ public class RequestResponseService : IRequestResponseService
                     transactionToken);
 
             if (donorProfileId is null)
+            {
                 throw new InvalidOperationException(
                     "An active and verified donor profile is required.");
+            }
 
             // 4. Prevent duplicate responses.
-            var alreadyResponded = await _responseRepository.ExistsAsync(
-                bloodRequestId,
-                donorProfileId.Value,
-                transactionToken);
+            var alreadyResponded =
+                await _responseRepository.ExistsAsync(
+                    bloodRequestId,
+                    donorProfileId.Value,
+                    transactionToken);
 
             if (alreadyResponded)
+            {
                 throw new InvalidOperationException(
                     "You have already responded to this blood request.");
+            }
 
             // 5. Create a new Pending response.
             var response = new RequestResponse
@@ -99,6 +101,7 @@ public class RequestResponseService : IRequestResponseService
 
         }, cancellationToken);
 
+        // Notify requester after the transaction succeeds.
         await _notificationService.NotifyUserAsync(
             requesterId,
             "NewBloodRequestResponse",
@@ -126,9 +129,10 @@ public class RequestResponseService : IRequestResponseService
         if (requesterId <= 0)
             throw new ArgumentException("Invalid requester ID.");
 
-        var bloodRequest = await _bloodRequestRepository.GetByIdAsync(
-            bloodRequestId,
-            cancellationToken);
+        var bloodRequest =
+            await _bloodRequestRepository.GetByIdAsync(
+                bloodRequestId,
+                cancellationToken);
 
         // Hide requests belonging to other requesters.
         if (bloodRequest is null ||
@@ -141,8 +145,6 @@ public class RequestResponseService : IRequestResponseService
             bloodRequestId,
             cancellationToken);
     }
-
-
 
     public async Task UpdateResponseStatusAsync(
         int responseId,
@@ -164,9 +166,10 @@ public class RequestResponseService : IRequestResponseService
         }
 
         // Initial lookup: identify the parent blood request.
-        var initialResponse = await _responseRepository.GetByIdAsync(
-            responseId,
-            cancellationToken);
+        var initialResponse =
+            await _responseRepository.GetByIdAsync(
+                responseId,
+                cancellationToken);
 
         if (initialResponse is null)
             throw new KeyNotFoundException("Response not found.");
@@ -186,8 +189,10 @@ public class RequestResponseService : IRequestResponseService
 
             // 2. Verify requester ownership.
             if (bloodRequest.RequesterId != requesterId)
+            {
                 throw new ArgumentException(
                     "You are not authorized to manage this request.");
+            }
 
             // 3. Verify that the request accepts response decisions.
             if (bloodRequest.Status != BloodRequestStatus.Open &&
@@ -198,9 +203,10 @@ public class RequestResponseService : IRequestResponseService
             }
 
             // 4. Fetch the latest response state after acquiring the lock.
-            var response = await _responseRepository.GetByIdAsync(
-                responseId,
-                transactionToken);
+            var response =
+                await _responseRepository.GetByIdAsync(
+                    responseId,
+                    transactionToken);
 
             if (response is null ||
                 response.BloodRequestId != bloodRequestId)
@@ -208,27 +214,50 @@ public class RequestResponseService : IRequestResponseService
                 throw new KeyNotFoundException("Response not found.");
             }
 
-            // 5. Update the donor response.
+            // 5. When accepting a donor, enforce the active commitment rule.
+            if (newStatus == RequestResponseStatus.Accepted)
+            {
+                // Lock the donor so concurrent acceptances for different
+                // blood requests cannot commit simultaneously.
+                await _responseRepository.LockDonorForCommitmentAsync(
+                    response.DonorId,
+                    transactionToken);
+
+                // Check whether this donor has another accepted commitment.
+                var hasOtherActiveCommitment =
+                    await _responseRepository.HasOtherActiveCommitmentAsync(
+                        response.DonorId,
+                        responseId,
+                        transactionToken);
+
+                if (hasOtherActiveCommitment)
+                {
+                    throw new InvalidOperationException(
+                        "This donor already has an active accepted commitment.");
+                }
+            }
+
+            // 6. Update the donor response.
             response.UpdateStatus(newStatus);
 
             await _responseRepository.UpdateAsync(
                 response,
                 transactionToken);
 
-            // 6. Count accepted responses.
+            // 7. Count accepted responses.
             var acceptedCount =
                 await _responseRepository.GetAcceptedResponseCountAsync(
                     bloodRequestId,
                     transactionToken);
 
-            // 7. Calculate the correct blood request status.
+            // 8. Calculate the correct blood request status.
             var newRequestStatus = acceptedCount == 0
                 ? BloodRequestStatus.Open
                 : acceptedCount >= bloodRequest.UnitsRequired
                     ? BloodRequestStatus.Fulfilled
                     : BloodRequestStatus.PartiallyFulfilled;
 
-            // 8. Update the blood request only when its status changes.
+            // 9. Update the blood request only when its status changes.
             if (bloodRequest.Status != newRequestStatus)
             {
                 bloodRequest.UpdateStatus(newRequestStatus);
@@ -252,5 +281,4 @@ public class RequestResponseService : IRequestResponseService
             userId,
             cancellationToken);
     }
-
 }

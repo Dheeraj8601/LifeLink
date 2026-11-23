@@ -1,4 +1,3 @@
-
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../features/authentication/context/AuthContext'
 import LoadingSpinner from '../components/common/LoadingSpinner'
@@ -11,7 +10,7 @@ function GuestRoute() {
     }
 
     if (isAuthenticated) {
-        return <Navigate to="/" replace />
+        return <Navigate to="/dashboard" replace />
     }
 
     return <Outlet />
