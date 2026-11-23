@@ -1,3 +1,4 @@
+
 import Navbar from '../../../components/layout/Navbar'
 import Footer from '../../../components/layout/Footer'
 import { useAuth } from '../../authentication/context/AuthContext'
@@ -11,6 +12,7 @@ import DonorOpenRequests from '../components/DonorOpenRequests'
 import MyResponses from '../components/MyResponses'
 import notificationService from '../../../core/signalr/notificationService'
 import { useLocation } from 'react-router-dom'
+import AdminDashboard from '../../admin/pages/AdminDashboard'
 
 function DashboardPage() {
     const { user } = useAuth()
@@ -21,6 +23,8 @@ function DashboardPage() {
         location.state?.highlightRequestId
 
     const userRole = user?.Role || user?.role
+
+    const isAdmin = userRole === 'Admin'
     const isDonor = userRole === 'Donor'
     const isRequester = userRole === 'Requester'
 
@@ -135,6 +139,11 @@ function DashboardPage() {
         } finally {
             setIsUpdatingAvailability(false)
         }
+    }
+
+    // Admin dashboard
+    if (isAdmin) {
+        return <AdminDashboard />
     }
 
     return (

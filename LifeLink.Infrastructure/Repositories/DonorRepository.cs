@@ -1,4 +1,5 @@
-﻿using LifeLink.Application.Interfaces.Repositories;
+﻿
+using LifeLink.Application.Interfaces.Repositories;
 using LifeLink.Domain.Entities;
 using LifeLink.Infrastructure.Data;
 using LifeLink.Application.Exceptions;
@@ -6,7 +7,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using LifeLink.Application.Models.Donors;
 using NetTopologySuite.Geometries;
-
 
 namespace LifeLink.Infrastructure.Repositories;
 
@@ -19,7 +19,9 @@ public class DonorRepository : IDonorRepository
         _context = context;
     }
 
-    public async Task<Donor?> GetByIdAsync(int donorId,CancellationToken cancellationToken = default)
+    public async Task<Donor?> GetByIdAsync(
+        int donorId,
+        CancellationToken cancellationToken = default)
     {
         var donorProfile = await _context.DonorProfiles
             .AsNoTracking()
@@ -27,16 +29,30 @@ public class DonorRepository : IDonorRepository
                 d => d.Id == donorId,
                 cancellationToken);
 
-        return donorProfile is null ? null : MapToDomain(donorProfile);
+        return donorProfile is null
+            ? null
+            : MapToDomain(donorProfile);
     }
 
-    public async Task<IReadOnlyList<Donor>> GetAvailableDonorsAsync(int cityId,string bloodGroup,CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Donor>> GetAvailableDonorsAsync(
+        int cityId,
+        string bloodGroup,
+        CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(bloodGroup))
+            throw new ArgumentException(
+                "Blood group is required.",
+                nameof(bloodGroup));
+
+        var compatibleBloodGroups =
+            GetCompatibleDonorBloodGroups(bloodGroup);
+
         var donorProfiles = await _context.DonorProfiles
             .AsNoTracking()
+            .Include(d => d.City)
             .Where(d =>
                 d.CityId == cityId &&
-                d.BloodGroup == bloodGroup &&
+                compatibleBloodGroups.Contains(d.BloodGroup) &&
                 d.IsAvailable &&
                 d.IsVerified)
             .ToListAsync(cancellationToken);
@@ -46,7 +62,9 @@ public class DonorRepository : IDonorRepository
             .ToList();
     }
 
-    public async Task AddAsync(Donor donor,CancellationToken cancellationToken = default)
+    public async Task AddAsync(
+        Donor donor,
+        CancellationToken cancellationToken = default)
     {
         var donorProfile = new Data.Entities.DonorProfile
         {
@@ -55,7 +73,9 @@ public class DonorRepository : IDonorRepository
             BloodGroup = donor.BloodGroup,
             Latitude = donor.Latitude,
             Longitude = donor.Longitude,
-            Location = CreateLocation(donor.Latitude, donor.Longitude),
+            Location = CreateLocation(
+                donor.Latitude,
+                donor.Longitude),
             IsAvailable = donor.IsAvailable,
             IsVerified = donor.IsVerified,
             LastDonationDate = donor.LastDonationDate,
@@ -71,7 +91,9 @@ public class DonorRepository : IDonorRepository
         donor.Id = donorProfile.Id;
     }
 
-    public async Task UpdateAsync(Donor donor,CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(
+        Donor donor,
+        CancellationToken cancellationToken = default)
     {
         var donorProfile = await _context.DonorProfiles
             .FirstOrDefaultAsync(
@@ -88,9 +110,11 @@ public class DonorRepository : IDonorRepository
         donorProfile.BloodGroup = donor.BloodGroup;
         donorProfile.Latitude = donor.Latitude;
         donorProfile.Longitude = donor.Longitude;
+
         donorProfile.Location = CreateLocation(
-                                        donor.Latitude,
-                                        donor.Longitude);
+            donor.Latitude,
+            donor.Longitude);
+
         donorProfile.IsAvailable = donor.IsAvailable;
         donorProfile.IsVerified = donor.IsVerified;
         donorProfile.LastDonationDate = donor.LastDonationDate;
@@ -98,7 +122,8 @@ public class DonorRepository : IDonorRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    private static Donor MapToDomain(Data.Entities.DonorProfile profile)
+    private static Donor MapToDomain(
+        Data.Entities.DonorProfile profile)
     {
         return new Donor
         {
@@ -118,8 +143,8 @@ public class DonorRepository : IDonorRepository
     }
 
     public async Task<bool> EmailExistsAsync(
-    string email,
-    CancellationToken cancellationToken = default)
+        string email,
+        CancellationToken cancellationToken = default)
     {
         return await _context.Users
             .AnyAsync(
@@ -128,17 +153,23 @@ public class DonorRepository : IDonorRepository
     }
 
     public async Task<bool> CityExistsAsync(
-    int cityId,
-    CancellationToken cancellationToken = default)
+        int cityId,
+        CancellationToken cancellationToken = default)
     {
         return await _context.Cities
-            .AnyAsync(c => c.Id == cityId, cancellationToken);
+            .AnyAsync(
+                c => c.Id == cityId,
+                cancellationToken);
     }
 
-    public async Task RegisterAsync(Domain.Entities.User user,Donor donor,CancellationToken cancellationToken = default)
+    public async Task RegisterAsync(
+        Domain.Entities.User user,
+        Donor donor,
+        CancellationToken cancellationToken = default)
     {
         await using var transaction =
-            await _context.Database.BeginTransactionAsync(cancellationToken);
+            await _context.Database.BeginTransactionAsync(
+                cancellationToken);
 
         try
         {
@@ -166,7 +197,9 @@ public class DonorRepository : IDonorRepository
                 BloodGroup = donor.BloodGroup,
                 Latitude = donor.Latitude,
                 Longitude = donor.Longitude,
-                Location = CreateLocation(donor.Latitude, donor.Longitude),
+                Location = CreateLocation(
+                    donor.Latitude,
+                    donor.Longitude),
                 IsAvailable = donor.IsAvailable,
                 IsVerified = donor.IsVerified,
                 LastDonationDate = donor.LastDonationDate,
@@ -186,11 +219,12 @@ public class DonorRepository : IDonorRepository
             donor.UserId = userEntity.Id;
         }
         catch (DbUpdateException ex)
-    when (ex.InnerException is SqlException sqlException &&
-          (sqlException.Number == 2601 || sqlException.Number == 2627) &&
-          sqlException.Message.Contains(
-              "UQ_Users_Email",
-              StringComparison.OrdinalIgnoreCase))
+            when (ex.InnerException is SqlException sqlException &&
+                  (sqlException.Number == 2601 ||
+                   sqlException.Number == 2627) &&
+                  sqlException.Message.Contains(
+                      "UQ_Users_Email",
+                      StringComparison.OrdinalIgnoreCase))
         {
             await transaction.RollbackAsync(cancellationToken);
 
@@ -198,34 +232,47 @@ public class DonorRepository : IDonorRepository
         }
     }
 
-    public async Task<(IReadOnlyList<DonorMatchResult> Items, int TotalCount)> GetNearbyDonorsAsync(
-        string bloodGroup,
-        double hospitalLatitude,
-        double hospitalLongitude,
-        double radiusKm,
-        int pageNumber,
-        int pageSize,
-        CancellationToken cancellationToken = default)
+    public async Task<(IReadOnlyList<DonorMatchResult> Items, int TotalCount)>
+        GetNearbyDonorsAsync(
+            string bloodGroup,
+            double hospitalLatitude,
+            double hospitalLongitude,
+            double radiusKm,
+            int pageNumber,
+            int pageSize,
+            CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(bloodGroup))
-            throw new ArgumentException("Blood group is required.", nameof(bloodGroup));
+            throw new ArgumentException(
+                "Blood group is required.",
+                nameof(bloodGroup));
+
+        var compatibleBloodGroups =
+            GetCompatibleDonorBloodGroups(bloodGroup);
 
         if (!double.IsFinite(hospitalLatitude) ||
-            hospitalLatitude < -90 || hospitalLatitude > 90)
-            throw new ArgumentOutOfRangeException(nameof(hospitalLatitude));
+            hospitalLatitude < -90 ||
+            hospitalLatitude > 90)
+            throw new ArgumentOutOfRangeException(
+                nameof(hospitalLatitude));
 
         if (!double.IsFinite(hospitalLongitude) ||
-            hospitalLongitude < -180 || hospitalLongitude > 180)
-            throw new ArgumentOutOfRangeException(nameof(hospitalLongitude));
+            hospitalLongitude < -180 ||
+            hospitalLongitude > 180)
+            throw new ArgumentOutOfRangeException(
+                nameof(hospitalLongitude));
 
         if (!double.IsFinite(radiusKm) || radiusKm <= 0)
-            throw new ArgumentOutOfRangeException(nameof(radiusKm));
+            throw new ArgumentOutOfRangeException(
+                nameof(radiusKm));
 
         if (pageNumber < 1)
-            throw new ArgumentOutOfRangeException(nameof(pageNumber));
+            throw new ArgumentOutOfRangeException(
+                nameof(pageNumber));
 
         if (pageSize < 1)
-            throw new ArgumentOutOfRangeException(nameof(pageSize));
+            throw new ArgumentOutOfRangeException(
+                nameof(pageSize));
 
         // NetTopologySuite uses X = Longitude and Y = Latitude.
         var hospitalLocation = new Point(
@@ -241,7 +288,7 @@ public class DonorRepository : IDonorRepository
         var query = _context.DonorProfiles
             .AsNoTracking()
             .Where(d =>
-                d.BloodGroup == bloodGroup &&
+                compatibleBloodGroups.Contains(d.BloodGroup) &&
                 d.IsAvailable &&
                 d.IsVerified &&
                 d.Location != null &&
@@ -262,14 +309,17 @@ public class DonorRepository : IDonorRepository
                 BloodGroup = d.BloodGroup,
                 IsAvailable = d.IsAvailable,
                 IsVerified = d.IsVerified,
-                DistanceKm = d.Location!.Distance(hospitalLocation) / 1000.0
+                DistanceKm =
+                    d.Location!.Distance(hospitalLocation) / 1000.0
             })
             .ToListAsync(cancellationToken);
 
         return (matchingDonors, totalCount);
     }
 
-    private static Point? CreateLocation(decimal? latitude,decimal? longitude)
+    private static Point? CreateLocation(
+        decimal? latitude,
+        decimal? longitude)
     {
         if (latitude is null && longitude is null)
             return null;
@@ -299,9 +349,11 @@ public class DonorRepository : IDonorRepository
         CancellationToken cancellationToken = default)
     {
         var donorProfile = await _context.DonorProfiles
-                .AsNoTracking()
-                .Include(d => d.City)
-                .FirstOrDefaultAsync(d => d.UserId == userId,cancellationToken);
+            .AsNoTracking()
+            .Include(d => d.City)
+            .FirstOrDefaultAsync(
+                d => d.UserId == userId,
+                cancellationToken);
 
         return donorProfile is null
             ? null
@@ -327,5 +379,28 @@ public class DonorRepository : IDonorRepository
         donorProfile.IsAvailable = isAvailable;
 
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    private static string[] GetCompatibleDonorBloodGroups(
+        string recipientBloodGroup)
+    {
+        return recipientBloodGroup.Trim().ToUpperInvariant() switch
+        {
+            "O-" => ["O-"],
+            "O+" => ["O-", "O+"],
+
+            "A-" => ["O-", "A-"],
+            "A+" => ["O-", "O+", "A-", "A+"],
+
+            "B-" => ["O-", "B-"],
+            "B+" => ["O-", "O+", "B-", "B+"],
+
+            "AB-" => ["O-", "A-", "B-", "AB-"],
+            "AB+" => ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"],
+
+            _ => throw new ArgumentException(
+                "Invalid blood group.",
+                nameof(recipientBloodGroup))
+        };
     }
 }

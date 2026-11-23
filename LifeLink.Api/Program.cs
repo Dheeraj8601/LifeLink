@@ -139,6 +139,7 @@ builder.Services.AddScoped<IRequestResponseRepository, RequestResponseRepository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<IRequesterRepository, RequesterRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 
 // --------------------------------------------------
 // 6. Register Application Services
@@ -151,6 +152,7 @@ builder.Services.AddScoped<IRequestResponseService, RequestResponseService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IRequesterService, RequesterService>();
 builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 // --------------------------------------------------
 // 7. Register Security Services

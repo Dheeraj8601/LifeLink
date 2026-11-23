@@ -18,6 +18,9 @@ function DonorOpenRequests() {
     const [submittedRequests, setSubmittedRequests] = useState([])
     const [responseMessages, setResponseMessages] = useState({})
 
+    // Active commitment state
+    const [hasActiveCommitment, setHasActiveCommitment] = useState(false)
+
     // Fetch requests whenever the page changes
     useEffect(() => {
         const fetchOpenRequests = async () => {
@@ -45,6 +48,36 @@ function DonorOpenRequests() {
         fetchOpenRequests()
     }, [pageNumber])
 
+    // Fetch donor's previously submitted responses
+    useEffect(() => {
+        const fetchMyResponses = async () => {
+            try {
+                const responses = await donorService.getMyResponses()
+
+                // Check whether donor has an accepted commitment
+                setHasActiveCommitment(
+                    responses.some(
+                        response => response.responseStatus === 2
+                    )
+                )
+
+                // Get request IDs the donor has already responded to
+                const respondedRequestIds = responses.map(
+                    response => response.bloodRequestId
+                )
+
+                setSubmittedRequests(respondedRequestIds)
+            } catch (error) {
+                console.error(
+                    'Failed to load donor responses:',
+                    error
+                )
+            }
+        }
+
+        fetchMyResponses()
+    }, [])
+
     // Submit donor response
     const handleRespond = async (requestId) => {
         setSubmittingRequestId(requestId)
@@ -57,10 +90,12 @@ function DonorOpenRequests() {
         try {
             const result = await donorService.submitResponse(requestId)
 
-            setSubmittedRequests(previous => [
-                ...previous,
-                requestId,
-            ])
+            // Prevent duplicate request IDs in state
+            setSubmittedRequests(previous =>
+                previous.includes(requestId)
+                    ? previous
+                    : [...previous, requestId]
+            )
 
             setResponseMessages(previous => ({
                 ...previous,
@@ -138,6 +173,16 @@ function DonorOpenRequests() {
                     </div>
                 )}
             </div>
+
+            {/* Active Commitment Warning */}
+            {hasActiveCommitment && (
+                <div className="alert alert-warning">
+                    <strong>Active Donation Commitment:</strong>
+                    {' '}
+                    You currently have an accepted donation commitment.
+                    Please coordinate and complete your current donation.
+                </div>
+            )}
 
             {/* Loading */}
             {isLoading && (
