@@ -51,4 +51,13 @@ public interface IDonorRepository
         int userId,
         bool isAvailable,
         CancellationToken cancellationToken = default);
+
+
+    Task<IReadOnlyList<EligibleDonorNotification>> GetEligibleDonorsForBloodRequestAsync(
+            string recipientBloodGroup,
+            double latitude,
+            double longitude,
+            double radiusKm,
+            CancellationToken cancellationToken = default);
+
 }

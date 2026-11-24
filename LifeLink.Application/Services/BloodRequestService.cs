@@ -1,49 +1,59 @@
 ﻿
 using LifeLink.Application.DTOs.BloodRequests;
+using LifeLink.Application.DTOs.Common;
 using LifeLink.Application.Interfaces.Repositories;
 using LifeLink.Application.Interfaces.Services;
 using LifeLink.Domain.Entities;
 using LifeLink.Domain.Enums;
-using LifeLink.Application.DTOs.Common;
+using Microsoft.Extensions.Logging;
 
 namespace LifeLink.Application.Services;
 
 public class BloodRequestService : IBloodRequestService
 {
     private readonly IBloodRequestRepository _repository;
+    private readonly IBloodRequestNotificationScheduler _notificationScheduler;
+    private readonly ILogger<BloodRequestService> _logger;
 
     private static readonly HashSet<string> ValidBloodGroups =
     [
         "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"
     ];
 
-    public BloodRequestService(IBloodRequestRepository repository)
+    public BloodRequestService(
+        IBloodRequestRepository repository,
+        IBloodRequestNotificationScheduler notificationScheduler,
+        ILogger<BloodRequestService> logger)
     {
         _repository = repository;
+        _notificationScheduler = notificationScheduler;
+        _logger = logger;
     }
 
-    public async Task<BloodRequestResult> CreateBloodRequestAsync(CreateBloodRequestCommand command,CancellationToken cancellationToken = default)
+    public async Task<BloodRequestResult> CreateBloodRequestAsync(
+        CreateBloodRequestCommand command,
+        CancellationToken cancellationToken = default)
     {
-
         if (command.RequesterId <= 0 ||
-        !await _repository.IsActiveRequesterAsync(
-        command.RequesterId, cancellationToken))
+            !await _repository.IsActiveRequesterAsync(
+                command.RequesterId,
+                cancellationToken))
         {
             throw new ArgumentException(
                 "Invalid requester. An active requester account is required.");
         }
 
-
         if (!await _repository.CityExistsAsync(
-                command.CityId, cancellationToken))
+                command.CityId,
+                cancellationToken))
         {
             throw new ArgumentException(
                 $"City with ID {command.CityId} does not exist.");
         }
 
         if (string.IsNullOrWhiteSpace(command.BloodGroup) ||
-        !ValidBloodGroups.Contains(
-        command.BloodGroup.Trim().ToUpperInvariant()))
+            !ValidBloodGroups.Contains(
+                command.BloodGroup.Trim().ToUpperInvariant()))
         {
             throw new ArgumentException("Invalid blood group.");
         }
@@ -85,11 +95,11 @@ public class BloodRequestService : IBloodRequestService
         }
 
         if (string.IsNullOrWhiteSpace(command.Urgency) ||
-             !Enum.TryParse<RequestUrgency>(
-                  command.Urgency.Trim(),
-                  true,
-                  out var urgency) ||
-             !Enum.IsDefined(urgency))
+            !Enum.TryParse<RequestUrgency>(
+                command.Urgency.Trim(),
+                true,
+                out var urgency) ||
+            !Enum.IsDefined(urgency))
         {
             throw new ArgumentException("Invalid request urgency.");
         }
@@ -110,7 +120,45 @@ public class BloodRequestService : IBloodRequestService
             CreatedAt = DateTime.UtcNow
         };
 
-        await _repository.AddAsync(bloodRequest, cancellationToken);
+        // 1. Save the blood request first.
+        await _repository.AddAsync(
+            bloodRequest,
+            cancellationToken);
+
+        // 2. Enqueue donor matching as a background job.
+        // A scheduling failure must not make the requester believe
+        // that the already-saved blood request was not created.
+        if (bloodRequest.Latitude.HasValue &&
+            bloodRequest.Longitude.HasValue)
+        {
+            try
+            {
+                var jobId =
+                    _notificationScheduler.EnqueueDonorNotification(
+                        bloodRequest.Id);
+
+                _logger.LogInformation(
+                    "Donor notification job {JobId} enqueued for " +
+                    "blood request {BloodRequestId}.",
+                    jobId,
+                    bloodRequest.Id);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Failed to enqueue donor notification job for " +
+                    "blood request {BloodRequestId}.",
+                    bloodRequest.Id);
+            }
+        }
+        else
+        {
+            _logger.LogWarning(
+                "Blood request {BloodRequestId} has no coordinates. " +
+                "Donor notification job was not enqueued.",
+                bloodRequest.Id);
+        }
 
         return MapToResult(bloodRequest);
     }
@@ -122,9 +170,9 @@ public class BloodRequestService : IBloodRequestService
         CancellationToken cancellationToken = default)
     {
         var bloodRequest = await _repository.GetByIdAsync(
-            id, cancellationToken);
+            id,
+            cancellationToken);
 
-        // Request does not exist.
         if (bloodRequest is null)
         {
             return null;
@@ -149,8 +197,8 @@ public class BloodRequestService : IBloodRequestService
         return MapToResult(bloodRequest);
     }
 
-
-    private static BloodRequestResult MapToResult(BloodRequest bloodRequest)
+    private static BloodRequestResult MapToResult(
+        BloodRequest bloodRequest)
     {
         return new BloodRequestResult
         {
@@ -188,25 +236,27 @@ public class BloodRequestService : IBloodRequestService
             .ToList();
     }
 
-
     public async Task<PagedResult<BloodRequestResult>> GetOpenRequestsAsync(
         PaginationRequest pagination,
         CancellationToken cancellationToken = default)
     {
         if (pagination.PageNumber < 1)
         {
-            throw new ArgumentException("Page number must be greater than zero.");
+            throw new ArgumentException(
+                "Page number must be greater than zero.");
         }
 
         if (pagination.PageSize < 1 || pagination.PageSize > 50)
         {
-            throw new ArgumentException("Page size must be between 1 and 50.");
+            throw new ArgumentException(
+                "Page size must be between 1 and 50.");
         }
 
-        var (requests, totalCount) = await _repository.GetOpenRequestsAsync(
-            pagination.PageNumber,
-            pagination.PageSize,
-            cancellationToken);
+        var (requests, totalCount) =
+            await _repository.GetOpenRequestsAsync(
+                pagination.PageNumber,
+                pagination.PageSize,
+                cancellationToken);
 
         return new PagedResult<BloodRequestResult>
         {

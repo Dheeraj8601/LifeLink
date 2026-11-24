@@ -1,17 +1,27 @@
+
+using System.Security.Claims;
+using System.Text;
+using LifeLink.Api.BackgroundJobs;
+using Hangfire;
+using Hangfire.SqlServer;
+
+using LifeLink.Api.Authorization;
 using LifeLink.Api.Hubs;
+using LifeLink.Api.Services;
+
 using LifeLink.Application.Interfaces.Repositories;
 using LifeLink.Application.Interfaces.Security;
 using LifeLink.Application.Interfaces.Services;
 using LifeLink.Application.Services;
+
 using LifeLink.Infrastructure.Data;
+using LifeLink.Infrastructure.Email;
 using LifeLink.Infrastructure.Repositories;
 using LifeLink.Infrastructure.Security;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Text;
-using LifeLink.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +33,6 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
-// Register SignalR
 builder.Services.AddSignalR();
 
 // Configure CORS for React frontend
@@ -54,7 +63,40 @@ builder.Services.AddDbContext<LifeLinkDbContext>(options =>
         sqlOptions => sqlOptions.UseNetTopologySuite()));
 
 // --------------------------------------------------
-// 3. Configure JWT Settings
+// 3. Configure Hangfire Background Jobs
+// --------------------------------------------------
+
+builder.Services.AddHangfire(configuration =>
+{
+    configuration
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(
+            connectionString,
+            new SqlServerStorageOptions
+            {
+                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+
+                SlidingInvisibilityTimeout =
+                    TimeSpan.FromMinutes(5),
+
+                QueuePollInterval = TimeSpan.Zero,
+
+                UseRecommendedIsolationLevel = true,
+
+                DisableGlobalLocks = true
+            });
+});
+
+// Start Hangfire background worker.
+builder.Services.AddHangfireServer();
+builder.Services.AddScoped<BloodRequestDonorNotificationJob>();
+builder.Services.AddScoped<IBloodRequestNotificationScheduler,HangfireBloodRequestNotificationScheduler>();
+builder.Services.AddScoped<BloodRequestDonorNotificationJob>();
+
+// --------------------------------------------------
+// 4. Configure JWT Settings
 // --------------------------------------------------
 
 builder.Services.Configure<JwtSettings>(
@@ -79,7 +121,16 @@ var signingKey = new SymmetricSecurityKey(
     Encoding.UTF8.GetBytes(jwtSettings.SecretKey));
 
 // --------------------------------------------------
-// 4. Configure Authentication
+// 5. Configure Email Settings
+// --------------------------------------------------
+
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddScoped<IEmailService, MailKitEmailService>();
+
+// --------------------------------------------------
+// 6. Configure Authentication
 // --------------------------------------------------
 
 builder.Services
@@ -103,7 +154,7 @@ builder.Services
             RoleClaimType = ClaimTypes.Role
         };
 
-        // Read JWT from HttpOnly cookie
+        // Read JWT from HttpOnly cookie.
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -115,6 +166,10 @@ builder.Services
             }
         };
     });
+
+// --------------------------------------------------
+// 7. Configure Authorization
+// --------------------------------------------------
 
 builder.Services.AddAuthorization(options =>
 {
@@ -129,7 +184,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 // --------------------------------------------------
-// 5. Register Repositories
+// 8. Register Repositories
 // --------------------------------------------------
 
 builder.Services.AddScoped<IDonorRepository, DonorRepository>();
@@ -142,7 +197,7 @@ builder.Services.AddScoped<IRequesterRepository, RequesterRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 
 // --------------------------------------------------
-// 6. Register Application Services
+// 9. Register Application Services
 // --------------------------------------------------
 
 builder.Services.AddScoped<IDonorService, DonorService>();
@@ -155,24 +210,25 @@ builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 
 // --------------------------------------------------
-// 7. Register Security Services
+// 10. Register Security Services
 // --------------------------------------------------
 
 builder.Services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 
 // --------------------------------------------------
-// 8. Build Application
+// 11. Build Application
 // --------------------------------------------------
 
 var app = builder.Build();
 
 // --------------------------------------------------
-// 9. Configure HTTP Pipeline
+// 12. Configure HTTP Pipeline
 // --------------------------------------------------
 
 if (app.Environment.IsDevelopment())
 {
+    app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -185,12 +241,25 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // --------------------------------------------------
-// 10. Map Endpoints
+// 13. Hangfire Dashboard - Admin Only
+// --------------------------------------------------
+
+app.UseHangfireDashboard(
+    "/hangfire",
+    new DashboardOptions
+    {
+        Authorization =
+        [
+            new HangfireDashboardAuthorizationFilter()
+        ]
+    });
+
+// --------------------------------------------------
+// 14. Map Endpoints
 // --------------------------------------------------
 
 app.MapControllers();
 
-// Map SignalR Hub
 app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();
