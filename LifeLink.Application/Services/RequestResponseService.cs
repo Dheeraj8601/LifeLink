@@ -43,7 +43,6 @@ public class RequestResponseService : IRequestResponseService
 
         await _unitOfWork.ExecuteInTransactionAsync(async transactionToken =>
         {
-            // 1. Lock the blood request before checking its status.
             var bloodRequest =
                 await _bloodRequestRepository.GetByIdForUpdateAsync(
                     bloodRequestId,
@@ -54,7 +53,6 @@ public class RequestResponseService : IRequestResponseService
 
             requesterId = bloodRequest.RequesterId;
 
-            // 2. Allow responses only for Open or PartiallyFulfilled requests.
             if (bloodRequest.Status != BloodRequestStatus.Open &&
                 bloodRequest.Status != BloodRequestStatus.PartiallyFulfilled)
             {
@@ -62,7 +60,6 @@ public class RequestResponseService : IRequestResponseService
                     "This blood request is no longer accepting responses.");
             }
 
-            // 3. Find the authenticated user's eligible donor profile.
             var donorProfileId =
                 await _responseRepository.GetEligibleDonorProfileIdAsync(
                     userId,
@@ -74,7 +71,6 @@ public class RequestResponseService : IRequestResponseService
                     "An active and verified donor profile is required.");
             }
 
-            // 4. Retrieve the donor's blood group.
             var donorBloodGroup =
                 await _responseRepository.GetEligibleDonorBloodGroupAsync(
                     userId,
@@ -83,23 +79,18 @@ public class RequestResponseService : IRequestResponseService
             if (donorBloodGroup is null)
             {
                 throw new InvalidOperationException(
-                    "An active and verified donor profile is required.");
+                    "Unable to retrieve the donor's blood group.");
             }
 
-            // 5. Validate blood group compatibility.
-            var isCompatible =
-                BloodGroupCompatibility.IsCompatible(
+            if (!BloodGroupCompatibility.IsCompatible(
                     donorBloodGroup,
-                    bloodRequest.BloodGroup);
-
-            if (!isCompatible)
+                    bloodRequest.BloodGroup))
             {
                 throw new InvalidOperationException(
                     $"Your blood group ({donorBloodGroup}) is not compatible " +
-                    $"with this request ({bloodRequest.BloodGroup}).");
+                    $"with the requested blood group ({bloodRequest.BloodGroup}).");
             }
 
-            // 6. Prevent duplicate responses.
             var alreadyResponded =
                 await _responseRepository.ExistsAsync(
                     bloodRequestId,
@@ -112,7 +103,6 @@ public class RequestResponseService : IRequestResponseService
                     "You have already responded to this blood request.");
             }
 
-            // 7. Create a new Pending response.
             var response = new RequestResponse
             {
                 BloodRequestId = bloodRequestId,
@@ -127,7 +117,6 @@ public class RequestResponseService : IRequestResponseService
 
         }, cancellationToken);
 
-        // Notify requester after the transaction succeeds.
         await _notificationService.NotifyUserAsync(
             requesterId,
             "NewBloodRequestResponse",
@@ -160,7 +149,6 @@ public class RequestResponseService : IRequestResponseService
                 bloodRequestId,
                 cancellationToken);
 
-        // Hide requests belonging to other requesters.
         if (bloodRequest is null ||
             bloodRequest.RequesterId != requesterId)
         {
@@ -191,7 +179,6 @@ public class RequestResponseService : IRequestResponseService
                 "Only Accepted or Rejected status is allowed.");
         }
 
-        // Initial lookup: identify the parent blood request.
         var initialResponse =
             await _responseRepository.GetByIdAsync(
                 responseId,
@@ -204,7 +191,6 @@ public class RequestResponseService : IRequestResponseService
 
         await _unitOfWork.ExecuteInTransactionAsync(async transactionToken =>
         {
-            // 1. Lock the parent blood request.
             var bloodRequest =
                 await _bloodRequestRepository.GetByIdForUpdateAsync(
                     bloodRequestId,
@@ -213,14 +199,12 @@ public class RequestResponseService : IRequestResponseService
             if (bloodRequest is null)
                 throw new KeyNotFoundException("Blood request not found.");
 
-            // 2. Verify requester ownership.
             if (bloodRequest.RequesterId != requesterId)
             {
                 throw new ArgumentException(
                     "You are not authorized to manage this request.");
             }
 
-            // 3. Verify that the request accepts response decisions.
             if (bloodRequest.Status != BloodRequestStatus.Open &&
                 bloodRequest.Status != BloodRequestStatus.PartiallyFulfilled)
             {
@@ -228,7 +212,6 @@ public class RequestResponseService : IRequestResponseService
                     "This blood request is no longer accepting responses.");
             }
 
-            // 4. Fetch the latest response state after acquiring the lock.
             var response =
                 await _responseRepository.GetByIdAsync(
                     responseId,
@@ -240,16 +223,35 @@ public class RequestResponseService : IRequestResponseService
                 throw new KeyNotFoundException("Response not found.");
             }
 
-            // 5. When accepting a donor, enforce the active commitment rule.
             if (newStatus == RequestResponseStatus.Accepted)
             {
-                // Lock the donor so concurrent acceptances for different
-                // blood requests cannot commit simultaneously.
+                // Revalidate compatibility at acceptance time.
+                var donorBloodGroup =
+                    await _responseRepository.GetDonorBloodGroupByProfileIdAsync(
+                        response.DonorId,
+                        transactionToken);
+
+                if (donorBloodGroup is null)
+                {
+                    throw new InvalidOperationException(
+                        "The donor's blood group could not be found.");
+                }
+
+                if (!BloodGroupCompatibility.IsCompatible(
+                        donorBloodGroup,
+                        bloodRequest.BloodGroup))
+                {
+                    throw new InvalidOperationException(
+                        $"This donor's blood group ({donorBloodGroup}) is not " +
+                        $"compatible with the requested blood group " +
+                        $"({bloodRequest.BloodGroup}).");
+                }
+
+                // Lock donor before checking active commitments.
                 await _responseRepository.LockDonorForCommitmentAsync(
                     response.DonorId,
                     transactionToken);
 
-                // Check whether this donor has another accepted commitment.
                 var hasOtherActiveCommitment =
                     await _responseRepository.HasOtherActiveCommitmentAsync(
                         response.DonorId,
@@ -263,27 +265,23 @@ public class RequestResponseService : IRequestResponseService
                 }
             }
 
-            // 6. Update the donor response.
             response.UpdateStatus(newStatus);
 
             await _responseRepository.UpdateAsync(
                 response,
                 transactionToken);
 
-            // 7. Count accepted responses.
             var acceptedCount =
                 await _responseRepository.GetAcceptedResponseCountAsync(
                     bloodRequestId,
                     transactionToken);
 
-            // 8. Calculate the correct blood request status.
             var newRequestStatus = acceptedCount == 0
                 ? BloodRequestStatus.Open
                 : acceptedCount >= bloodRequest.UnitsRequired
                     ? BloodRequestStatus.Fulfilled
                     : BloodRequestStatus.PartiallyFulfilled;
 
-            // 9. Update the blood request only when its status changes.
             if (bloodRequest.Status != newRequestStatus)
             {
                 bloodRequest.UpdateStatus(newRequestStatus);

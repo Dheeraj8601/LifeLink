@@ -5,6 +5,8 @@ using LifeLink.Application.Interfaces.Repositories;
 using LifeLink.Application.Services;
 using LifeLink.Domain.Entities;
 using LifeLink.Domain.Enums;
+using LifeLink.Application.Interfaces.Services;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace LifeLink.Tests.Services;
@@ -13,10 +15,17 @@ public class BloodRequestServiceTests
 {
     private readonly Mock<IBloodRequestRepository> _repositoryMock;
     private readonly BloodRequestService _service;
+    private readonly Mock<IBloodRequestNotificationScheduler> _notificationSchedulerMock;
+    private readonly Mock<ILogger<BloodRequestService>> _loggerMock;
 
     public BloodRequestServiceTests()
     {
         _repositoryMock = new Mock<IBloodRequestRepository>();
+
+        _notificationSchedulerMock =
+            new Mock<IBloodRequestNotificationScheduler>();
+
+        _loggerMock = new Mock<ILogger<BloodRequestService>>();
 
         // Default: requester is valid and active.
         _repositoryMock
@@ -25,8 +34,16 @@ public class BloodRequestServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
+        // Default: Hangfire successfully enqueues the job.
+        _notificationSchedulerMock
+            .Setup(s => s.EnqueueDonorNotification(
+                It.IsAny<int>()))
+            .Returns("test-hangfire-job-id");
+
         _service = new BloodRequestService(
-            _repositoryMock.Object);
+            _repositoryMock.Object,
+            _notificationSchedulerMock.Object,
+            _loggerMock.Object);
     }
 
     // Test 1: Valid blood request
@@ -69,6 +86,10 @@ public class BloodRequestServiceTests
                 It.IsAny<BloodRequest>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+
+        _notificationSchedulerMock.Verify(
+    s => s.EnqueueDonorNotification(101),
+    Times.Once);
     }
 
     // Test 2: Invalid city

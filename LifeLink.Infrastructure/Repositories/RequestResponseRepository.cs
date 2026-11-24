@@ -73,6 +73,29 @@ public class RequestResponseRepository : IRequestResponseRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<string?> GetEligibleDonorBloodGroupAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.DonorProfiles
+            .Where(donor =>
+                donor.UserId == userId &&
+                donor.IsAvailable &&
+                donor.IsVerified)
+            .Select(donor => donor.BloodGroup)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<string?> GetDonorBloodGroupByProfileIdAsync(
+        int donorProfileId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.DonorProfiles
+            .Where(donor => donor.Id == donorProfileId)
+            .Select(donor => donor.BloodGroup)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<List<RequestResponse>> GetByBloodRequestIdAsync(
         int bloodRequestId,
         CancellationToken cancellationToken = default)
@@ -170,8 +193,6 @@ public class RequestResponseRepository : IRequestResponseRepository
         int donorId,
         CancellationToken cancellationToken = default)
     {
-        // UPDLOCK + HOLDLOCK keeps the donor row locked until
-        // the current transaction completes.
         await _context.Database.SqlQueryRaw<int>(
                 """
                 SELECT Id AS Value
@@ -194,18 +215,5 @@ public class RequestResponseRepository : IRequestResponseRepository
                     response.Id != excludedResponseId &&
                     response.Status == "Accepted",
                 cancellationToken);
-    }
-
-    public async Task<string?> GetEligibleDonorBloodGroupAsync(
-    int userId,
-    CancellationToken cancellationToken = default)
-    {
-        return await _context.DonorProfiles
-            .Where(donor =>
-                donor.UserId == userId &&
-                donor.IsAvailable &&
-                donor.IsVerified)
-            .Select(donor => donor.BloodGroup)
-            .FirstOrDefaultAsync(cancellationToken);
     }
 }

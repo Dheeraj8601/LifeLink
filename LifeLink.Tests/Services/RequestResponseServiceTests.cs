@@ -23,7 +23,7 @@ public class RequestResponseServiceTests
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _notification = new Mock<INotificationService>();
 
-        // Execute the supplied operation directly in unit tests.
+        // Execute the supplied transaction operation directly in unit tests.
         _unitOfWorkMock
             .Setup(u => u.ExecuteInTransactionAsync(
                 It.IsAny<Func<CancellationToken, Task>>(),
@@ -56,28 +56,48 @@ public class RequestResponseServiceTests
         };
     }
 
-    private void SetupEligibleDonor(int userId = 10, int donorProfileId = 5)
+    private void SetupBloodRequest(
+        BloodRequest? request,
+        int requestId = 101)
+    {
+        _bloodRequestRepositoryMock
+            .Setup(r => r.GetByIdForUpdateAsync(
+                requestId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(request);
+    }
+
+    private void SetupEligibleDonor(
+        int userId = 10,
+        int donorProfileId = 5,
+        string bloodGroup = "O+")
     {
         _responseRepositoryMock
             .Setup(r => r.GetEligibleDonorProfileIdAsync(
-                userId, It.IsAny<CancellationToken>()))
+                userId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(donorProfileId);
+
+        _responseRepositoryMock
+            .Setup(r => r.GetEligibleDonorBloodGroupAsync(
+                userId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(bloodGroup);
     }
 
     [Fact]
     public async Task SubmitResponseAsync_ValidRequest_CreatesPendingResponse()
     {
         // Arrange
-        _bloodRequestRepositoryMock
-            .Setup(r => r.GetByIdAsync(
-                101, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateOpenRequest());
+        SetupBloodRequest(CreateOpenRequest());
 
         SetupEligibleDonor();
 
         _responseRepositoryMock
             .Setup(r => r.ExistsAsync(
-                101, 5, It.IsAny<CancellationToken>()))
+                101,
+                5,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         _responseRepositoryMock
@@ -102,6 +122,14 @@ public class RequestResponseServiceTests
                     response.Status == RequestResponseStatus.Pending),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+
+        _notification.Verify(
+            n => n.NotifyUserAsync(
+                20,
+                "NewBloodRequestResponse",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Theory]
@@ -119,8 +147,9 @@ public class RequestResponseServiceTests
 
         // Assert
         _bloodRequestRepositoryMock.Verify(
-            r => r.GetByIdAsync(
-                It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            r => r.GetByIdForUpdateAsync(
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         _responseRepositoryMock.Verify(
@@ -134,10 +163,7 @@ public class RequestResponseServiceTests
     public async Task SubmitResponseAsync_RequestDoesNotExist_ThrowsKeyNotFoundException()
     {
         // Arrange
-        _bloodRequestRepositoryMock
-            .Setup(r => r.GetByIdAsync(
-                999, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((BloodRequest?)null);
+        SetupBloodRequest(null, 999);
 
         // Act
         await Assert.ThrowsAsync<KeyNotFoundException>(
@@ -146,25 +172,22 @@ public class RequestResponseServiceTests
         // Assert
         _responseRepositoryMock.Verify(
             r => r.GetEligibleDonorProfileIdAsync(
-                It.IsAny<int>(), It.IsAny<CancellationToken>()),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     [Theory]
     [InlineData(BloodRequestStatus.Fulfilled)]
     [InlineData(BloodRequestStatus.Cancelled)]
-    [InlineData(BloodRequestStatus.PartiallyFulfilled)]
-    public async Task SubmitResponseAsync_RequestNotOpen_ThrowsInvalidOperationException(
+    public async Task SubmitResponseAsync_RequestNotAcceptingResponses_ThrowsInvalidOperationException(
         BloodRequestStatus status)
     {
         // Arrange
         var request = CreateOpenRequest();
         request.Status = status;
 
-        _bloodRequestRepositoryMock
-            .Setup(r => r.GetByIdAsync(
-                101, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(request);
+        SetupBloodRequest(request);
 
         // Act
         await Assert.ThrowsAsync<InvalidOperationException>(
@@ -173,22 +196,59 @@ public class RequestResponseServiceTests
         // Assert
         _responseRepositoryMock.Verify(
             r => r.GetEligibleDonorProfileIdAsync(
-                It.IsAny<int>(), It.IsAny<CancellationToken>()),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitResponseAsync_PartiallyFulfilledRequest_AllowsResponse()
+    {
+        // Arrange
+        var request = CreateOpenRequest();
+        request.Status = BloodRequestStatus.PartiallyFulfilled;
+
+        SetupBloodRequest(request);
+        SetupEligibleDonor();
+
+        _responseRepositoryMock
+            .Setup(r => r.ExistsAsync(
+                101,
+                5,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        _responseRepositoryMock
+            .Setup(r => r.AddAsync(
+                It.IsAny<RequestResponse>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<RequestResponse, CancellationToken>((response, _) =>
+                response.Id = 202)
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _service.SubmitResponseAsync(101, 10);
+
+        // Assert
+        Assert.Equal(202, result);
+
+        _responseRepositoryMock.Verify(
+            r => r.AddAsync(
+                It.IsAny<RequestResponse>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
     public async Task SubmitResponseAsync_DonorProfileNotEligible_ThrowsInvalidOperationException()
     {
         // Arrange
-        _bloodRequestRepositoryMock
-            .Setup(r => r.GetByIdAsync(
-                101, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateOpenRequest());
+        SetupBloodRequest(CreateOpenRequest());
 
         _responseRepositoryMock
             .Setup(r => r.GetEligibleDonorProfileIdAsync(
-                10, It.IsAny<CancellationToken>()))
+                10,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((int?)null);
 
         // Act
@@ -204,19 +264,40 @@ public class RequestResponseServiceTests
     }
 
     [Fact]
+    public async Task SubmitResponseAsync_DonorBloodGroupIncompatible_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        SetupBloodRequest(CreateOpenRequest());
+
+        // B+ cannot donate red blood cells to an O+ recipient.
+        SetupEligibleDonor(bloodGroup: "B+");
+
+        // Act
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _service.SubmitResponseAsync(101, 10));
+
+        // Assert
+        Assert.Contains("not compatible", exception.Message);
+
+        _responseRepositoryMock.Verify(
+            r => r.AddAsync(
+                It.IsAny<RequestResponse>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task SubmitResponseAsync_DonorAlreadyResponded_ThrowsInvalidOperationException()
     {
         // Arrange
-        _bloodRequestRepositoryMock
-            .Setup(r => r.GetByIdAsync(
-                101, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateOpenRequest());
-
+        SetupBloodRequest(CreateOpenRequest());
         SetupEligibleDonor();
 
         _responseRepositoryMock
             .Setup(r => r.ExistsAsync(
-                101, 5, It.IsAny<CancellationToken>()))
+                101,
+                5,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         // Act

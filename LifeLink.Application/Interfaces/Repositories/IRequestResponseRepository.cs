@@ -53,4 +53,8 @@ public interface IRequestResponseRepository
     Task<string?> GetEligibleDonorBloodGroupAsync(
     int userId,
     CancellationToken cancellationToken = default);
+
+    Task<string?> GetDonorBloodGroupByProfileIdAsync(
+        int donorProfileId,
+        CancellationToken cancellationToken = default);
 }

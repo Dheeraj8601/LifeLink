@@ -403,4 +403,65 @@ public class DonorRepository : IDonorRepository
 
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+
+    public async Task<IReadOnlyList<EligibleDonorNotification>> GetEligibleDonorsForBloodRequestAsync(
+            string recipientBloodGroup,
+            double latitude,
+            double longitude,
+            double radiusKm,
+            CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(recipientBloodGroup))
+            throw new ArgumentException("Blood group is required.");
+
+        if (!double.IsFinite(latitude) ||
+            latitude < -90 || latitude > 90)
+            throw new ArgumentOutOfRangeException(nameof(latitude));
+
+        if (!double.IsFinite(longitude) ||
+            longitude < -180 || longitude > 180)
+            throw new ArgumentOutOfRangeException(nameof(longitude));
+
+        if (!double.IsFinite(radiusKm) || radiusKm <= 0)
+            throw new ArgumentOutOfRangeException(nameof(radiusKm));
+
+        var compatibleBloodGroups =
+            BloodGroupCompatibility.GetCompatibleDonorBloodGroups(
+                recipientBloodGroup);
+
+        var requestLocation = new Point(longitude, latitude)
+        {
+            SRID = 4326
+        };
+
+        var radiusMeters = radiusKm * 1000;
+
+        var eligibleDonors = _context.DonorProfiles
+            .AsNoTracking()
+            .Where(donor =>
+                donor.IsAvailable &&
+                donor.IsVerified &&
+                donor.Location != null &&
+                compatibleBloodGroups.Contains(donor.BloodGroup) &&
+                donor.Location.Distance(requestLocation) <= radiusMeters &&
+                !donor.RequestResponses.Any(response =>
+                    response.Status == "Accepted"));
+
+        return await eligibleDonors
+            .OrderBy(donor =>
+                donor.Location!.Distance(requestLocation))
+            .Select(donor => new EligibleDonorNotification
+            {
+                DonorId = donor.Id,
+                UserId = donor.UserId,
+                FullName = donor.User.FullName,
+                Email = donor.User.Email,
+                BloodGroup = donor.BloodGroup,
+                DistanceKm =
+                    donor.Location!.Distance(requestLocation) / 1000.0
+            })
+            .ToListAsync(cancellationToken);
+    }
+
 }

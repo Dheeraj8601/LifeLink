@@ -1,3 +1,4 @@
+
 import apiClient from '../../../core/api/apiClient'
 
 const bloodRequestService = {
@@ -21,7 +22,12 @@ const bloodRequestService = {
     },
 
     // Get nearby eligible donors for a blood request
-    getNearbyDonors: async (requestId, radiusKm = 20, pageNumber = 1, pageSize = 10) => {
+    getNearbyDonors: async (
+        requestId,
+        radiusKm = 20,
+        pageNumber = 1,
+        pageSize = 10
+    ) => {
         const response = await apiClient.get(
             `/blood-requests/${requestId}/nearby-donors`,
             {
@@ -40,6 +46,18 @@ const bloodRequestService = {
     getResponsesForRequest: async (requestId) => {
         const response = await apiClient.get(
             `/blood-requests/${requestId}/responses`
+        )
+
+        return response.data
+    },
+
+    // Accept or reject a donor response
+    updateResponseStatus: async (responseId, status) => {
+        const response = await apiClient.put(
+            `/blood-requests/responses/${responseId}/status`,
+            {
+                status,
+            }
         )
 
         return response.data
