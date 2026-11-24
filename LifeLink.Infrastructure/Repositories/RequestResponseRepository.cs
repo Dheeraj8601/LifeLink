@@ -195,4 +195,17 @@ public class RequestResponseRepository : IRequestResponseRepository
                     response.Status == "Accepted",
                 cancellationToken);
     }
+
+    public async Task<string?> GetEligibleDonorBloodGroupAsync(
+    int userId,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.DonorProfiles
+            .Where(donor =>
+                donor.UserId == userId &&
+                donor.IsAvailable &&
+                donor.IsVerified)
+            .Select(donor => donor.BloodGroup)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

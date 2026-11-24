@@ -4,6 +4,7 @@ using LifeLink.Application.Interfaces.Repositories;
 using LifeLink.Application.Interfaces.Services;
 using LifeLink.Domain.Entities;
 using LifeLink.Domain.Enums;
+using LifeLink.Domain.Services;
 
 namespace LifeLink.Application.Services;
 
@@ -73,7 +74,32 @@ public class RequestResponseService : IRequestResponseService
                     "An active and verified donor profile is required.");
             }
 
-            // 4. Prevent duplicate responses.
+            // 4. Retrieve the donor's blood group.
+            var donorBloodGroup =
+                await _responseRepository.GetEligibleDonorBloodGroupAsync(
+                    userId,
+                    transactionToken);
+
+            if (donorBloodGroup is null)
+            {
+                throw new InvalidOperationException(
+                    "An active and verified donor profile is required.");
+            }
+
+            // 5. Validate blood group compatibility.
+            var isCompatible =
+                BloodGroupCompatibility.IsCompatible(
+                    donorBloodGroup,
+                    bloodRequest.BloodGroup);
+
+            if (!isCompatible)
+            {
+                throw new InvalidOperationException(
+                    $"Your blood group ({donorBloodGroup}) is not compatible " +
+                    $"with this request ({bloodRequest.BloodGroup}).");
+            }
+
+            // 6. Prevent duplicate responses.
             var alreadyResponded =
                 await _responseRepository.ExistsAsync(
                     bloodRequestId,
@@ -86,7 +112,7 @@ public class RequestResponseService : IRequestResponseService
                     "You have already responded to this blood request.");
             }
 
-            // 5. Create a new Pending response.
+            // 7. Create a new Pending response.
             var response = new RequestResponse
             {
                 BloodRequestId = bloodRequestId,

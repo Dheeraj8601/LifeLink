@@ -1,6 +1,7 @@
 ﻿
 using LifeLink.Application.Interfaces.Repositories;
 using LifeLink.Domain.Entities;
+using LifeLink.Domain.Services;
 using LifeLink.Infrastructure.Data;
 using LifeLink.Application.Exceptions;
 using Microsoft.Data.SqlClient;
@@ -40,12 +41,15 @@ public class DonorRepository : IDonorRepository
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(bloodGroup))
+        {
             throw new ArgumentException(
                 "Blood group is required.",
                 nameof(bloodGroup));
+        }
 
         var compatibleBloodGroups =
-            GetCompatibleDonorBloodGroups(bloodGroup);
+            BloodGroupCompatibility.GetCompatibleDonorBloodGroups(
+                bloodGroup);
 
         var donorProfiles = await _context.DonorProfiles
             .AsNoTracking()
@@ -243,36 +247,49 @@ public class DonorRepository : IDonorRepository
             CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(bloodGroup))
+        {
             throw new ArgumentException(
                 "Blood group is required.",
                 nameof(bloodGroup));
+        }
 
         var compatibleBloodGroups =
-            GetCompatibleDonorBloodGroups(bloodGroup);
+            BloodGroupCompatibility.GetCompatibleDonorBloodGroups(
+                bloodGroup);
 
         if (!double.IsFinite(hospitalLatitude) ||
             hospitalLatitude < -90 ||
             hospitalLatitude > 90)
+        {
             throw new ArgumentOutOfRangeException(
                 nameof(hospitalLatitude));
+        }
 
         if (!double.IsFinite(hospitalLongitude) ||
             hospitalLongitude < -180 ||
             hospitalLongitude > 180)
+        {
             throw new ArgumentOutOfRangeException(
                 nameof(hospitalLongitude));
+        }
 
         if (!double.IsFinite(radiusKm) || radiusKm <= 0)
+        {
             throw new ArgumentOutOfRangeException(
                 nameof(radiusKm));
+        }
 
         if (pageNumber < 1)
+        {
             throw new ArgumentOutOfRangeException(
                 nameof(pageNumber));
+        }
 
         if (pageSize < 1)
+        {
             throw new ArgumentOutOfRangeException(
                 nameof(pageSize));
+        }
 
         // NetTopologySuite uses X = Longitude and Y = Latitude.
         var hospitalLocation = new Point(
@@ -322,7 +339,9 @@ public class DonorRepository : IDonorRepository
         decimal? longitude)
     {
         if (latitude is null && longitude is null)
+        {
             return null;
+        }
 
         if (latitude is null || longitude is null)
         {
@@ -331,10 +350,14 @@ public class DonorRepository : IDonorRepository
         }
 
         if (latitude < -90 || latitude > 90)
+        {
             throw new ArgumentOutOfRangeException(nameof(latitude));
+        }
 
         if (longitude < -180 || longitude > 180)
+        {
             throw new ArgumentOutOfRangeException(nameof(longitude));
+        }
 
         return new Point(
             (double)longitude.Value,
@@ -379,28 +402,5 @@ public class DonorRepository : IDonorRepository
         donorProfile.IsAvailable = isAvailable;
 
         await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    private static string[] GetCompatibleDonorBloodGroups(
-        string recipientBloodGroup)
-    {
-        return recipientBloodGroup.Trim().ToUpperInvariant() switch
-        {
-            "O-" => ["O-"],
-            "O+" => ["O-", "O+"],
-
-            "A-" => ["O-", "A-"],
-            "A+" => ["O-", "O+", "A-", "A+"],
-
-            "B-" => ["O-", "B-"],
-            "B+" => ["O-", "O+", "B-", "B+"],
-
-            "AB-" => ["O-", "A-", "B-", "AB-"],
-            "AB+" => ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"],
-
-            _ => throw new ArgumentException(
-                "Invalid blood group.",
-                nameof(recipientBloodGroup))
-        };
     }
 }
