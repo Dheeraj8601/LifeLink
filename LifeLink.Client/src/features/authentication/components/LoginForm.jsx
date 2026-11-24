@@ -4,18 +4,19 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import FormInput from '../../../components/common/FormInput'
 import AuthLayout from './AuthLayout'
 import { useAuth } from '../context/AuthContext'
+import { getDashboardPath } from '../../../routes/roleRoutes'
 
 function LoginForm() {
     const { login } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
+
     const successMessage = location.state?.message
+
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-
-
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -31,7 +32,9 @@ function LoginForm() {
 
             console.log('Login successful:', result.user)
 
-            navigate('/dashboard')
+            const dashboardPath = getDashboardPath(result.user)
+
+            navigate(dashboardPath, { replace: true })
         } catch (error) {
             setError(error.message || 'Login failed. Please try again.')
         } finally {
@@ -50,6 +53,7 @@ function LoginForm() {
                         {error}
                     </div>
                 )}
+
                 {successMessage && (
                     <div className="alert alert-success" role="alert">
                         {successMessage}

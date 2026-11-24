@@ -1,6 +1,8 @@
+
 import { Routes, Route } from 'react-router-dom'
 
 import DashboardPage from '../features/dashboard/pages/DashboardPage'
+import AdminDashboard from '../features/admin/pages/AdminDashboard'
 import HomePage from '../features/home/pages/HomePage'
 import LoginPage from '../features/authentication/pages/LoginPage'
 import RegisterPage from '../features/authentication/pages/RegisterPage'
@@ -21,13 +23,42 @@ function AppRoutes() {
                 <Route path="/register" element={<RegisterPage />} />
             </Route>
 
-            {/* Routes accessible to any authenticated user */}
-            <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<DashboardPage />} />
+            {/* Donor and Requester dashboard */}
+            <Route
+                element={
+                    <ProtectedRoute
+                        allowedRoles={['Donor', 'Requester']}
+                    />
+                }
+            >
+                <Route
+                    path="/dashboard"
+                    element={<DashboardPage />}
+                />
+            </Route>
+
+            {/* Admin-only dashboard */}
+            <Route
+                element={
+                    <ProtectedRoute
+                        allowedRoles={['Admin']}
+                    />
+                }
+            >
+                <Route
+                    path="/admin/dashboard"
+                    element={<AdminDashboard />}
+                />
             </Route>
 
             {/* Requester-only routes */}
-            <Route element={<ProtectedRoute allowedRoles={['Requester']} />}>
+            <Route
+                element={
+                    <ProtectedRoute
+                        allowedRoles={['Requester']}
+                    />
+                }
+            >
                 <Route
                     path="/blood-requests/create"
                     element={<CreateBloodRequestPage />}
